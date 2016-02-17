@@ -2,26 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="./css/style.css" media="screen, projections">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <title>Colour Schemes</title>
+    <title>Colour Scheme</title>
   </head>
   <body>
-    <header>
-      <h1>Colour Schemes</h1>
-      <!-- <nav role="navigation">
-        <h2>
-          Global navigation
-        </h2>
-        <ul>
-          <li><a href="#">nav</a></li>
-        </ul>
-      </nav> -->
-    </header>
-    <main role="main" id="contentContainer">
-      <article id='selection' role="article">
+    <div id="topPanel">
+      <header>
+        <h1>Create a Custom Colour Scheme</h1>
+      </header>
+      <div id="selection" >
         <h2>
           Select a Background Colour -
         </h2>
@@ -30,29 +20,40 @@
           <button class='colours' id='colour2'></button>
           <button class='colours' id='colour3'></button>
         </div>
-      </article>
-      <article id="siteTemplate">
-        <h2>Site Template</h2>
+        <div>
+          <h2>Site Example</h2>
+        </div>
+      </div>
+    </div>
+    <div id="siteTemplate">
+      <div id="fullPanel">
+          <!-- This fullPanel has a margin of 5% -->
         <div id='hero' >
-          <img src="https://pbs.twimg.com/profile_images/616542814319415296/McCTpH_E.jpg">
+          <img src="./images/rose_opt.jpg">
         </div>
         <div id="siteText">
-          <p>Grumpy Cat is an internet sensation.</p>
-          <p>Apparently she <q>rose to online fame</q> in September 2012.  I <strong>hate</strong> Grumpy Cat.</p>
+          <h1>Inceptos</h1>
+          <h2>Hymenaeos Amet Montes Lacus</h2>
+          <p>Euismod nec habitasse natoque dolor suspendisse morbi risus hendrerit viverra sollicitudin odio ultricies, non suspendisse dui cursus taciti augue. Congue nisl etiam nibh volutpat arcu ridiculus integer. Tortor adipiscing <em>scelerisque</em> pulvinar ornare elementum ullamcorper turpis ridiculus.</p>
+          <p>Turpis tempor turpis sem hymenaeos. Euismod. Varius morbi nonummy lobortis sit <em>diam</em> inceptos suscipit <strong>facilisi</strong> taciti aenean. Convallis lacinia ipsum. Molestie. <strong>Nulla</strong> nisi conubia eleifend mauris vitae commodo faucibus hendrerit nulla <strong>pretium</strong> ante. Sem eu nisi turpis mi mauris sollicitudin laoreet curabitur morbi ut dui, interdum.</p>
+          <h2>Aenean Sed Pede</h2>
+          <p>Fermentum turpis dictumst hymenaeos nullam. Litora rhoncus facilisis phasellus hendrerit bibendum cras odio, vehicula nulla fusce nostra fringilla.</p>
         </div>
-        <div id="twinImages">
-          <div class="smallImage" id="imgLeft">
-            <img src="http://placehold.it/350x150">
+        <div id='twinImages'>
+          <div class="smallImage">
+            <img src="./images/camera-541213_1920.jpg">
           </div>
-          <div class= "smallImage" id="imgRight">
-            <img src="http://placehold.it/350x150">
+          <div class="smallImage">
+            <img src="./images/typewriter-1156824_1920.jpg"></div>
           </div>
         </div>
-      </article>
-    </main>
-    <footer role="contentinfo">
+      </div>
+
+    </div>
+
+    <!-- <footer role="contentinfo">
       <p>Copyright 2016</p>
-    </footer>
+    </footer> -->
     <script src='js/display.js'></script>
   </body>
 </html>

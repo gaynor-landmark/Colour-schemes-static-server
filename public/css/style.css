@@ -1,26 +1,34 @@
 body{
-  /*position: relative;*/
-  margin: auto;
-  min-height: 100%;
-  width: 90%;
-  background: white;
+  position: relative;
+  height: auto;
+  width: auto;
+  background: grey;
+}
+#topPanel{
+  width: auto;
+  background: grey;
+  padding-top: 100px;
+
+}
+header{
+  text-align: center;
 }
 h1{
-
+  font-family: monospace ;
+  font-size: 250%;
+  text-align: center;
+}
+#selection{
+  width: auto;
+  padding: 15px;
+  /*background-color: pink;*/
+}
+h2{
+  font-family: monospace;
 }
 #colourOptions{
   width: 100%;
-  /*background: white;*/
   height: 100px
-}
-
-#contentContainer{
-  width: 100%;
-  margin-top: 50px
-
-}
-#selection{
-  background: white
 }
 .colours{
   height: 30px;
@@ -36,7 +44,7 @@ h1{
   background: orange;
 }
 #colour2{
-  background: black;
+  background: white;
 }
 #colour3{
   background: blue;
@@ -44,27 +52,36 @@ h1{
 
 /*The bottom section of the page that will show how the scheme will look*/
 #siteTemplate{
-  background: grey;
-  width: 100%
+  background: white;
+  width: auto;
+
+}
+#fullPanel{
+  /*background-color: green;*/
+  margin-left:5%;
+  margin-right: 5%;
+  width: auto;
+
 }
 #hero{
-  /*background-color: red;*/
+  padding-top: 1%;
+  display:block;
   align: center;
   width: auto;
-  width: 100%;
-  text-align: center
+  text-align: center;
 }
 #twinImages{
+  /*display:inline-block;*/
   width: 100%
 }
 .smallImage{
-  /*background-color: black;*/
-  text-align: center;
-  height: auto;
-  width: 46%;
-  margin: 2%;
-  float: left;
+  display:inline-block;
+  max-width: 47%;
+  margin: 1%;
 }
-/*#imgLeft, #imgRight {
-  margin: 1%
-}*/
+img{
+  max-width: 100%;
+  height: auto;
+  /*text-align: center*/
+
+}
