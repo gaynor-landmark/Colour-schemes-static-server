@@ -1,0 +1,53 @@
+body{
+  /*position: relative;*/
+  margin: auto;
+  min-height: 100%;
+  width: 90%;
+  background: white;
+}
+h1{
+
+}
+#colourOptions{
+  width: 100%;
+  /*background: white;*/
+  height: 100px
+}
+
+#contentContainer{
+  width: 100%;
+  margin-top: 50px
+
+}
+#selection{
+  background: white
+}
+.colours{
+  height: 30px;
+  width: 30px;
+  float: left;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 50%;
+  cursor: pointer
+
+}
+#colour1{
+  background: orange;
+}
+#colour2{
+  background: black;
+}
+#colour3{
+  background: blue;
+}
+#siteTemplate{
+  background: grey
+}
+#hero{
+  background-color: red;
+  align: center;
+  height: auto;
+  max-width: 100%
+
+}
