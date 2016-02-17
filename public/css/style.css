@@ -41,13 +41,30 @@ h1{
 #colour3{
   background: blue;
 }
+
+/*The bottom section of the page that will show how the scheme will look*/
 #siteTemplate{
-  background: grey
+  background: grey;
+  width: 100%
 }
 #hero{
-  background-color: red;
+  /*background-color: red;*/
   align: center;
-  height: auto;
-  max-width: 100%
-
+  width: auto;
+  width: 100%;
+  text-align: center
 }
+#twinImages{
+  width: 100%
+}
+.smallImage{
+  /*background-color: black;*/
+  text-align: center;
+  height: auto;
+  width: 46%;
+  margin: 2%;
+  float: left;
+}
+/*#imgLeft, #imgRight {
+  margin: 1%
+}*/

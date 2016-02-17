@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="./css/style.css" media="screen, projections">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <title>Colour Schemes</title>
   </head>
   <body>
@@ -25,22 +26,33 @@
           Select a Background Colour -
         </h2>
         <div id='colourOptions'>
-          <div class='colours' id='colour1'></div>
-          <div class='colours' id='colour2'></div>
-          <div class='colours' id='colour3'></div>
+          <button class='colours' id='colour1'></button>
+          <button class='colours' id='colour2'></button>
+          <button class='colours' id='colour3'></button>
         </div>
       </article>
       <article id="siteTemplate">
-        <h2>Web Template</h2>
+        <h2>Site Template</h2>
         <div id='hero' >
           <img src="https://pbs.twimg.com/profile_images/616542814319415296/McCTpH_E.jpg">
         </div>
-        <p>Grumpy Cat is an internet sensation.</p>
-        <p>Apparently she <q>rose to online fame</q> in September 2012.  I <strong>hate</strong> Grumpy Cat.</p>
+        <div id="siteText">
+          <p>Grumpy Cat is an internet sensation.</p>
+          <p>Apparently she <q>rose to online fame</q> in September 2012.  I <strong>hate</strong> Grumpy Cat.</p>
+        </div>
+        <div id="twinImages">
+          <div class="smallImage" id="imgLeft">
+            <img src="http://placehold.it/350x150">
+          </div>
+          <div class= "smallImage" id="imgRight">
+            <img src="http://placehold.it/350x150">
+          </div>
+        </div>
       </article>
     </main>
     <footer role="contentinfo">
       <p>Copyright 2016</p>
     </footer>
+    <script src='js/display.js'></script>
   </body>
 </html>
