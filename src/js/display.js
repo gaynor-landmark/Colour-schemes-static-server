@@ -1,4 +1,4 @@
-//var $ = require('jquery')
+var $ = require('jquery')
 //this will be called when the document has loaded (short form of $(document).ready())
 $(function(){
   console.log('loaded')
