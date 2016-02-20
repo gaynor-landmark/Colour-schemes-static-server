@@ -1,7 +1,7 @@
 var $ = require('jquery')
-//this will be called when the document has loaded (short form of $(document).ready())
-$(function(){
-  console.log('loaded')
+
+module.exports = function(){
+
   $('#colour1').click(function (){
     console.log('click1')
     $('#siteTemplate').css("background-color", "orange")
@@ -14,5 +14,4 @@ $(function(){
     console.log('click1')
     $('#siteTemplate').css("background-color", "blue")
   })
- }
-)
+}
