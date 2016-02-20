@@ -9836,27 +9836,26 @@ return jQuery;
  var display = require('./js/display.js')
 
  $(function() {
- 	alert('hi')
+    display()
  })
 
 },{"./js/display.js":3,"jquery":1}],3:[function(require,module,exports){
 var $ = require('jquery')
-//this will be called when the document has loaded (short form of $(document).ready())
-$(function(){
-  console.log('loaded')
-  $('#colour1').click(function (){
-    console.log('click1')
-    $('#siteTemplate').css("background-color", "orange")
-  })
+
+module.exports = function(){
+
+  // $('#colour1').click(function (){
+  //   console.log('click1')
+  //   $('#siteTemplate').css("background-color", "orange")
+  // })
   $('#colour2').click(function (){
     console.log('click1')
     $('#siteTemplate').css("background-color", "white")
   })
-  $('#colour3').click(function (){
-    console.log('click1')
-    $('#siteTemplate').css("background-color", "blue")
-  })
- }
-)
+  // $('#colour3').click(function (){
+  //   console.log('click1')
+  //   $('#siteTemplate').css("background-color", "blue")
+  // })
+}
 
 },{"jquery":1}]},{},[2]);
