@@ -1,4 +1,395 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks['$' + event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
+var trim = require('trim');
+var prefix = require('prefix');
+var prop = prefix('transform');
+var propTransOrigin = prefix('transformOrigin');
+var fns = require('./lib/properties');
+
+var _has = Object.prototype.hasOwnProperty;
+
+var shortcuts = {
+  x: 'translateX',
+  y: 'translateY',
+  z: 'translateZ'
+};
+
+
+exports = module.exports = transform;
+
+function transform(target, properties) {
+  var output = [];
+  var i;
+  var name;
+  var propValue;
+
+  for (i in properties) {
+    propValue = properties[i];
+
+    // replace shortcut with its transform value.
+    name = _has.call(shortcuts, i)
+      ? name = shortcuts[i]
+      : name = i;
+
+    if (_has.call(fns, name)) {
+      output.push(fns[name](numToString(propValue)));
+      continue;
+    }
+
+    if (name === 'origin') {
+      target.style[propTransOrigin] = propValue;
+      continue;
+    }
+
+    console.warn(name, 'is not a valid property');
+  }
+
+  target.style[prop] = output.join(' ');
+}
+
+
+exports.get = get;
+
+function get(target) {
+  return style(target);
+}
+
+
+exports.none = none;
+
+function none(target) {
+  target.style[prop] = '';
+  target.style[propTransOrigin] = '';
+}
+
+
+exports.isSupported = isSupported;
+
+function isSupported() {
+  return prop.length > 0;
+}
+
+
+function style(target) {
+  return target.style[prop];
+}
+
+
+function numToString(value) {
+  if (typeof value === 'number') {
+    value += '';
+  } else {
+    value = trim(value);
+  }
+
+  return value;
+}
+
+},{"./lib/properties":4,"prefix":17,"trim":22}],3:[function(require,module,exports){
+'use strict';
+
+exports = module.exports = compose;
+
+function compose() {
+  var funcs = arguments;
+
+  return function() {
+    var args = arguments;
+    for (var i = funcs.length-1; i >= 0; i--) {
+      args = [funcs[i].apply(this, args)];
+    }
+    return args[0];
+  };
+}
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+var trim = require('trim');
+var compose = require('./compose');
+
+var NUMBER_REGEX = /^-?\d+(\.\d+)?$/;
+
+module.exports = {
+  translate: compose(function(value) {
+    return 'translate(' + value + ')';
+  }, defaultUnit('px'), comma),
+
+  translate3d: compose(function(value) {
+    return 'translate3d(' + value + ')';
+  }, defaultUnit('px'), comma),
+
+  translateX: compose(function(x) {
+    return 'translateX(' + x + ')';
+  }, defaultUnit('px')),
+
+  translateY: compose(function(y) {
+    return 'translateY(' + y + ')';
+  }, defaultUnit('px')),
+
+  translateZ: compose(function(z) {
+    return 'translateZ(' + z + ')';
+  }, defaultUnit('px')),
+
+
+  scale: compose(function(value) {
+    return 'scale(' + value + ')';
+  }, comma),
+
+  scale3d: compose(function(value) {
+    return 'scale3d(' + value + ')';
+  }, comma),
+
+  scaleX: function(value) {
+    return 'scaleX(' + value + ')';
+  },
+
+  scaleY: function(value) {
+    return 'scaleY(' + value + ')';
+  },
+
+  scaleZ: function(value) {
+    return 'scaleZ(' + value + ')';
+  },
+
+
+  rotate: compose(function(value) {
+    return 'rotate(' + value + ')';
+  }, defaultUnit('deg'), comma),
+
+  rotate3d: compose(function(value) {
+    return 'rotate3d(' + value + ')';
+  }, comma),
+
+  rotateX: compose(function(value) {
+    return 'rotateX(' + value + ')';
+  }, defaultUnit('deg')),
+
+  rotateY: compose(function(value) {
+    return 'rotateY(' + value + ')';
+  }, defaultUnit('deg')),
+
+  rotateZ: compose(function(value) {
+    return 'rotateZ(' + value + ')';
+  }, defaultUnit('deg')),
+
+
+  skew: compose(function(value) {
+    return 'skew(' + value + ')';
+  }, defaultUnit('deg'), comma),
+
+  skewX: compose(function(value) {
+    return 'skewX(' + value + ')';
+  }, defaultUnit('deg')),
+
+  skewY: compose(function(value) {
+    return 'skewY(' + value + ')';
+  }, defaultUnit('deg')),
+
+
+  matrix: compose(function(value) {
+    return 'matrix(' + value + ')';
+  }, comma),
+
+  matrix3d: compose(function(value) {
+    return 'matrix3d(' + value + ')';
+  }, comma),
+
+
+  perspective: compose(function(value) {
+    return 'perspective(' + value + ')';
+  }, defaultUnit('px')),
+};
+
+
+function comma(value) {
+  if (!/,/.test(value)) {
+    value = value.split(' ').join(',');
+  }
+
+  return value;
+}
+
+
+function defaultUnit(unit) {
+  return function(value) {
+    return value.split(',').map(function(v) {
+      v = trim(v);
+
+      if (NUMBER_REGEX.test(v)) {
+        v += unit;
+      }
+
+      return v;
+    }).join(',');
+  };
+}
+
+},{"./compose":3,"trim":22}],5:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.0
  * http://jquery.com/
@@ -9831,31 +10222,3333 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],2:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+/**
+ * lodash 3.1.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var isArguments = require('lodash.isarguments'),
+    isArray = require('lodash.isarray');
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+/**
+ * The base implementation of `_.flatten` with added support for restricting
+ * flattening and specifying the start index.
+ *
+ * @private
+ * @param {Array} array The array to flatten.
+ * @param {boolean} [isDeep] Specify a deep flatten.
+ * @param {boolean} [isStrict] Restrict flattening to arrays-like objects.
+ * @param {Array} [result=[]] The initial result value.
+ * @returns {Array} Returns the new flattened array.
+ */
+function baseFlatten(array, isDeep, isStrict, result) {
+  result || (result = []);
+
+  var index = -1,
+      length = array.length;
+
+  while (++index < length) {
+    var value = array[index];
+    if (isObjectLike(value) && isArrayLike(value) &&
+        (isStrict || isArray(value) || isArguments(value))) {
+      if (isDeep) {
+        // Recursively flatten arrays (susceptible to call stack limits).
+        baseFlatten(value, isDeep, isStrict, result);
+      } else {
+        arrayPush(result, value);
+      }
+    } else if (!isStrict) {
+      result[result.length] = value;
+    }
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * Gets the "length" property value of `object`.
+ *
+ * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+ * that affects Safari on at least iOS 8.1-8.3 ARM64.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {*} Returns the "length" value.
+ */
+var getLength = baseProperty('length');
+
+/**
+ * Checks if `value` is array-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ */
+function isArrayLike(value) {
+  return value != null && isLength(getLength(value));
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+module.exports = baseFlatten;
+
+},{"lodash.isarguments":12,"lodash.isarray":13}],7:[function(require,module,exports){
+/**
+ * lodash 3.0.0 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.7.0 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var isFunction = require('lodash.isfunction');
+
+/**
+ * The base implementation of `_.functions` which creates an array of
+ * `object` function property names filtered from those provided.
+ *
+ * @private
+ * @param {Object} object The object to inspect.
+ * @param {Array} props The property names to filter.
+ * @returns {Array} Returns the new array of filtered property names.
+ */
+function baseFunctions(object, props) {
+  var index = -1,
+      length = props.length,
+      resIndex = -1,
+      result = [];
+
+  while (++index < length) {
+    var key = props[index];
+    if (isFunction(object[key])) {
+      result[++resIndex] = key;
+    }
+  }
+  return result;
+}
+
+module.exports = baseFunctions;
+
+},{"lodash.isfunction":14}],8:[function(require,module,exports){
+/**
+ * lodash 3.2.0 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var root = require('lodash._root');
+
+/** Used to compose bitmasks for wrapper metadata. */
+var BIND_FLAG = 1,
+    BIND_KEY_FLAG = 2,
+    CURRY_BOUND_FLAG = 4,
+    CURRY_FLAG = 8,
+    CURRY_RIGHT_FLAG = 16,
+    PARTIAL_FLAG = 32,
+    PARTIAL_RIGHT_FLAG = 64,
+    ARY_FLAG = 128,
+    FLIP_FLAG = 512;
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_SAFE_INTEGER = 9007199254740991,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** Used as the internal argument placeholder. */
+var PLACEHOLDER = '__lodash_placeholder__';
+
+/** `Object#toString` result references. */
+var funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
+ *
+ * @private
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {...*} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
+ */
+function apply(func, thisArg, args) {
+  var length = args.length;
+  switch (length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return value > -1 && value % 1 == 0 && value < length;
+}
+
+/**
+ * Replaces all `placeholder` elements in `array` with an internal placeholder
+ * and returns an array of their indexes.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {*} placeholder The placeholder to replace.
+ * @returns {Array} Returns the new array of placeholder indexes.
+ */
+function replaceHolders(array, placeholder) {
+  var index = -1,
+      length = array.length,
+      resIndex = -1,
+      result = [];
+
+  while (++index < length) {
+    if (array[index] === placeholder) {
+      array[index] = PLACEHOLDER;
+      result[++resIndex] = index;
+    }
+  }
+  return result;
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeMin = Math.min;
+
+/**
+ * The base implementation of `_.create` without support for assigning
+ * properties to the created object.
+ *
+ * @private
+ * @param {Object} prototype The object to inherit from.
+ * @returns {Object} Returns the new object.
+ */
+var baseCreate = (function() {
+  function object() {}
+  return function(prototype) {
+    if (isObject(prototype)) {
+      object.prototype = prototype;
+      var result = new object;
+      object.prototype = undefined;
+    }
+    return result || {};
+  };
+}());
+
+/**
+ * Creates an array that is the composition of partially applied arguments,
+ * placeholders, and provided arguments into a single array of arguments.
+ *
+ * @private
+ * @param {Array|Object} args The provided arguments.
+ * @param {Array} partials The arguments to prepend to those provided.
+ * @param {Array} holders The `partials` placeholder indexes.
+ * @returns {Array} Returns the new array of composed arguments.
+ */
+function composeArgs(args, partials, holders) {
+  var holdersLength = holders.length,
+      argsIndex = -1,
+      argsLength = nativeMax(args.length - holdersLength, 0),
+      leftIndex = -1,
+      leftLength = partials.length,
+      result = Array(leftLength + argsLength);
+
+  while (++leftIndex < leftLength) {
+    result[leftIndex] = partials[leftIndex];
+  }
+  while (++argsIndex < holdersLength) {
+    result[holders[argsIndex]] = args[argsIndex];
+  }
+  while (argsLength--) {
+    result[leftIndex++] = args[argsIndex++];
+  }
+  return result;
+}
+
+/**
+ * This function is like `composeArgs` except that the arguments composition
+ * is tailored for `_.partialRight`.
+ *
+ * @private
+ * @param {Array|Object} args The provided arguments.
+ * @param {Array} partials The arguments to append to those provided.
+ * @param {Array} holders The `partials` placeholder indexes.
+ * @returns {Array} Returns the new array of composed arguments.
+ */
+function composeArgsRight(args, partials, holders) {
+  var holdersIndex = -1,
+      holdersLength = holders.length,
+      argsIndex = -1,
+      argsLength = nativeMax(args.length - holdersLength, 0),
+      rightIndex = -1,
+      rightLength = partials.length,
+      result = Array(argsLength + rightLength);
+
+  while (++argsIndex < argsLength) {
+    result[argsIndex] = args[argsIndex];
+  }
+  var offset = argsIndex;
+  while (++rightIndex < rightLength) {
+    result[offset + rightIndex] = partials[rightIndex];
+  }
+  while (++holdersIndex < holdersLength) {
+    result[offset + holders[holdersIndex]] = args[argsIndex++];
+  }
+  return result;
+}
+
+/**
+ * Copies the values of `source` to `array`.
+ *
+ * @private
+ * @param {Array} source The array to copy values from.
+ * @param {Array} [array=[]] The array to copy values to.
+ * @returns {Array} Returns `array`.
+ */
+function copyArray(source, array) {
+  var index = -1,
+      length = source.length;
+
+  array || (array = Array(length));
+  while (++index < length) {
+    array[index] = source[index];
+  }
+  return array;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with the optional `this`
+ * binding of `thisArg`.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createBaseWrapper(func, bitmask, thisArg) {
+  var isBind = bitmask & BIND_FLAG,
+      Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+    return fn.apply(isBind ? thisArg : this, arguments);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that produces an instance of `Ctor` regardless of
+ * whether it was invoked as part of a `new` expression or by `call` or `apply`.
+ *
+ * @private
+ * @param {Function} Ctor The constructor to wrap.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createCtorWrapper(Ctor) {
+  return function() {
+    // Use a `switch` statement to work with class constructors.
+    // See http://ecma-international.org/ecma-262/6.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
+    // for more details.
+    var args = arguments;
+    switch (args.length) {
+      case 0: return new Ctor;
+      case 1: return new Ctor(args[0]);
+      case 2: return new Ctor(args[0], args[1]);
+      case 3: return new Ctor(args[0], args[1], args[2]);
+      case 4: return new Ctor(args[0], args[1], args[2], args[3]);
+      case 5: return new Ctor(args[0], args[1], args[2], args[3], args[4]);
+      case 6: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+      case 7: return new Ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+    }
+    var thisBinding = baseCreate(Ctor.prototype),
+        result = Ctor.apply(thisBinding, args);
+
+    // Mimic the constructor's `return` behavior.
+    // See https://es5.github.io/#x13.2.2 for more details.
+    return isObject(result) ? result : thisBinding;
+  };
+}
+
+/**
+ * Creates a function that wraps `func` to enable currying.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
+ * @param {number} arity The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createCurryWrapper(func, bitmask, arity) {
+  var Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var length = arguments.length,
+        index = length,
+        args = Array(length),
+        fn = (this && this !== root && this instanceof wrapper) ? Ctor : func,
+        placeholder = wrapper.placeholder;
+
+    while (index--) {
+      args[index] = arguments[index];
+    }
+    var holders = (length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder)
+      ? []
+      : replaceHolders(args, placeholder);
+
+    length -= holders.length;
+    return length < arity
+      ? createRecurryWrapper(func, bitmask, createHybridWrapper, placeholder, undefined, args, holders, undefined, undefined, arity - length)
+      : apply(fn, this, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with optional `this`
+ * binding of `thisArg`, partial application, and currying.
+ *
+ * @private
+ * @param {Function|string} func The function or method name to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to prepend to those provided to the new function.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [partialsRight] The arguments to append to those provided to the new function.
+ * @param {Array} [holdersRight] The `partialsRight` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createHybridWrapper(func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity) {
+  var isAry = bitmask & ARY_FLAG,
+      isBind = bitmask & BIND_FLAG,
+      isBindKey = bitmask & BIND_KEY_FLAG,
+      isCurry = bitmask & CURRY_FLAG,
+      isCurryRight = bitmask & CURRY_RIGHT_FLAG,
+      isFlip = bitmask & FLIP_FLAG,
+      Ctor = isBindKey ? undefined : createCtorWrapper(func);
+
+  function wrapper() {
+    var length = arguments.length,
+        index = length,
+        args = Array(length);
+
+    while (index--) {
+      args[index] = arguments[index];
+    }
+    if (partials) {
+      args = composeArgs(args, partials, holders);
+    }
+    if (partialsRight) {
+      args = composeArgsRight(args, partialsRight, holdersRight);
+    }
+    if (isCurry || isCurryRight) {
+      var placeholder = wrapper.placeholder,
+          argsHolders = replaceHolders(args, placeholder);
+
+      length -= argsHolders.length;
+      if (length < arity) {
+        return createRecurryWrapper(func, bitmask, createHybridWrapper, placeholder, thisArg, args, argsHolders, argPos, ary, arity - length);
+      }
+    }
+    var thisBinding = isBind ? thisArg : this,
+        fn = isBindKey ? thisBinding[func] : func;
+
+    if (argPos) {
+      args = reorder(args, argPos);
+    } else if (isFlip && args.length > 1) {
+      args.reverse();
+    }
+    if (isAry && ary < args.length) {
+      args.length = ary;
+    }
+    if (this && this !== root && this instanceof wrapper) {
+      fn = Ctor || createCtorWrapper(fn);
+    }
+    return fn.apply(thisBinding, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to invoke it with the optional `this`
+ * binding of `thisArg` and the `partials` prepended to those provided to
+ * the wrapper.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} partials The arguments to prepend to those provided to the new function.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createPartialWrapper(func, bitmask, thisArg, partials) {
+  var isBind = bitmask & BIND_FLAG,
+      Ctor = createCtorWrapper(func);
+
+  function wrapper() {
+    var argsIndex = -1,
+        argsLength = arguments.length,
+        leftIndex = -1,
+        leftLength = partials.length,
+        args = Array(leftLength + argsLength),
+        fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+
+    while (++leftIndex < leftLength) {
+      args[leftIndex] = partials[leftIndex];
+    }
+    while (argsLength--) {
+      args[leftIndex++] = arguments[++argsIndex];
+    }
+    return apply(fn, isBind ? thisArg : this, args);
+  }
+  return wrapper;
+}
+
+/**
+ * Creates a function that wraps `func` to continue currying.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
+ * @param {Function} wrapFunc The function to create the `func` wrapper.
+ * @param {*} placeholder The placeholder to replace.
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to prepend to those provided to the new function.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createRecurryWrapper(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary, arity) {
+  var isCurry = bitmask & CURRY_FLAG,
+      newArgPos = argPos ? copyArray(argPos) : undefined,
+      newsHolders = isCurry ? holders : undefined,
+      newHoldersRight = isCurry ? undefined : holders,
+      newPartials = isCurry ? partials : undefined,
+      newPartialsRight = isCurry ? undefined : partials;
+
+  bitmask |= (isCurry ? PARTIAL_FLAG : PARTIAL_RIGHT_FLAG);
+  bitmask &= ~(isCurry ? PARTIAL_RIGHT_FLAG : PARTIAL_FLAG);
+
+  if (!(bitmask & CURRY_BOUND_FLAG)) {
+    bitmask &= ~(BIND_FLAG | BIND_KEY_FLAG);
+  }
+  var result = wrapFunc(func, bitmask, thisArg, newPartials, newsHolders, newPartialsRight, newHoldersRight, newArgPos, ary, arity);
+
+  result.placeholder = placeholder;
+  return result;
+}
+
+/**
+ * Creates a function that either curries or invokes `func` with optional
+ * `this` binding and partially applied arguments.
+ *
+ * @private
+ * @param {Function|string} func The function or method name to wrap.
+ * @param {number} bitmask The bitmask of wrapper flags.
+ *  The bitmask may be composed of the following flags:
+ *     1 - `_.bind`
+ *     2 - `_.bindKey`
+ *     4 - `_.curry` or `_.curryRight` of a bound function
+ *     8 - `_.curry`
+ *    16 - `_.curryRight`
+ *    32 - `_.partial`
+ *    64 - `_.partialRight`
+ *   128 - `_.rearg`
+ *   256 - `_.ary`
+ * @param {*} [thisArg] The `this` binding of `func`.
+ * @param {Array} [partials] The arguments to be partially applied.
+ * @param {Array} [holders] The `partials` placeholder indexes.
+ * @param {Array} [argPos] The argument positions of the new function.
+ * @param {number} [ary] The arity cap of `func`.
+ * @param {number} [arity] The arity of `func`.
+ * @returns {Function} Returns the new wrapped function.
+ */
+function createWrapper(func, bitmask, thisArg, partials, holders, argPos, ary, arity) {
+  var isBindKey = bitmask & BIND_KEY_FLAG;
+  if (!isBindKey && typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  var length = partials ? partials.length : 0;
+  if (!length) {
+    bitmask &= ~(PARTIAL_FLAG | PARTIAL_RIGHT_FLAG);
+    partials = holders = undefined;
+  }
+  ary = ary === undefined ? ary : nativeMax(toInteger(ary), 0);
+  arity = arity === undefined ? arity : toInteger(arity);
+  length -= holders ? holders.length : 0;
+
+  if (bitmask & PARTIAL_RIGHT_FLAG) {
+    var partialsRight = partials,
+        holdersRight = holders;
+
+    partials = holders = undefined;
+  }
+  var newData = [func, bitmask, thisArg, partials, holders, partialsRight, holdersRight, argPos, ary, arity];
+
+  func = newData[0];
+  bitmask = newData[1];
+  thisArg = newData[2];
+  partials = newData[3];
+  holders = newData[4];
+  arity = newData[9] = newData[9] == null
+    ? (isBindKey ? 0 : func.length)
+    : nativeMax(newData[9] - length, 0);
+
+  if (!arity && bitmask & (CURRY_FLAG | CURRY_RIGHT_FLAG)) {
+    bitmask &= ~(CURRY_FLAG | CURRY_RIGHT_FLAG);
+  }
+  if (!bitmask || bitmask == BIND_FLAG) {
+    var result = createBaseWrapper(func, bitmask, thisArg);
+  } else if (bitmask == CURRY_FLAG || bitmask == CURRY_RIGHT_FLAG) {
+    result = createCurryWrapper(func, bitmask, arity);
+  } else if ((bitmask == PARTIAL_FLAG || bitmask == (BIND_FLAG | PARTIAL_FLAG)) && !holders.length) {
+    result = createPartialWrapper(func, bitmask, thisArg, partials);
+  } else {
+    result = createHybridWrapper.apply(undefined, newData);
+  }
+  return result;
+}
+
+/**
+ * Reorder `array` according to the specified indexes where the element at
+ * the first index is assigned as the first element, the element at
+ * the second index is assigned as the second element, and so on.
+ *
+ * @private
+ * @param {Array} array The array to reorder.
+ * @param {Array} indexes The arranged array indexes.
+ * @returns {Array} Returns `array`.
+ */
+function reorder(array, indexes) {
+  var arrLength = array.length,
+      length = nativeMin(indexes.length, arrLength),
+      oldArray = copyArray(array);
+
+  while (length--) {
+    var index = indexes[length];
+    array[length] = isIndex(index, arrLength) ? oldArray[index] : undefined;
+  }
+  return array;
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array constructors, and
+  // PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This function is loosely based on [`ToInteger`](http://www.ecma-international.org/ecma-262/6.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3');
+ * // => 3
+ */
+function toInteger(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  var remainder = value % 1;
+  return value === value ? (remainder ? value - remainder : value) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3);
+ * // => 3
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3');
+ * // => 3
+ */
+function toNumber(value) {
+  if (isObject(value)) {
+    var other = isFunction(value.valueOf) ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = createWrapper;
+
+},{"lodash._root":9}],9:[function(require,module,exports){
+(function (global){
+/**
+ * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** Used to determine if values are of the language type `Object`. */
+var objectTypes = {
+  'function': true,
+  'object': true
+};
+
+/** Detect free variable `exports`. */
+var freeExports = (objectTypes[typeof exports] && exports && !exports.nodeType)
+  ? exports
+  : undefined;
+
+/** Detect free variable `module`. */
+var freeModule = (objectTypes[typeof module] && module && !module.nodeType)
+  ? module
+  : undefined;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = checkGlobal(freeExports && freeModule && typeof global == 'object' && global);
+
+/** Detect free variable `self`. */
+var freeSelf = checkGlobal(objectTypes[typeof self] && self);
+
+/** Detect free variable `window`. */
+var freeWindow = checkGlobal(objectTypes[typeof window] && window);
+
+/** Detect `this` as the global object. */
+var thisGlobal = checkGlobal(objectTypes[typeof this] && this);
+
+/**
+ * Used as a reference to the global object.
+ *
+ * The `this` value is used if it's the global object to avoid Greasemonkey's
+ * restricted `window` object, otherwise the `window` object is used.
+ */
+var root = freeGlobal ||
+  ((freeWindow !== (thisGlobal && thisGlobal.window)) && freeWindow) ||
+    freeSelf || thisGlobal || Function('return this')();
+
+/**
+ * Checks if `value` is a global object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {null|Object} Returns `value` if it's a global object, else `null`.
+ */
+function checkGlobal(value) {
+  return (value && value.Object === Object) ? value : null;
+}
+
+module.exports = root;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],10:[function(require,module,exports){
+/**
+ * lodash 3.1.0 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.2 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var baseFlatten = require('lodash._baseflatten'),
+    createWrapper = require('lodash._createwrapper'),
+    functions = require('lodash.functions'),
+    restParam = require('lodash.restparam');
+
+/** Used to compose bitmasks for wrapper metadata. */
+var BIND_FLAG = 1;
+
+/**
+ * Binds methods of an object to the object itself, overwriting the existing
+ * method. Method names may be specified as individual arguments or as arrays
+ * of method names. If no method names are provided all enumerable function
+ * properties, own and inherited, of `object` are bound.
+ *
+ * **Note:** This method does not set the `length` property of bound functions.
+ *
+ * @static
+ * @memberOf _
+ * @category Function
+ * @param {Object} object The object to bind and assign the bound methods to.
+ * @param {...(string|string[])} [methodNames] The object method names to bind,
+ *  specified as individual method names or arrays of method names.
+ * @returns {Object} Returns `object`.
+ * @example
+ *
+ * var view = {
+ *   'label': 'docs',
+ *   'onClick': function() {
+ *     console.log('clicked ' + this.label);
+ *   }
+ * };
+ *
+ * _.bindAll(view);
+ * jQuery('#docs').on('click', view.onClick);
+ * // => logs 'clicked docs' when the element is clicked
+ */
+var bindAll = restParam(function(object, methodNames) {
+  methodNames = methodNames.length ? baseFlatten(methodNames) : functions(object);
+
+  var index = -1,
+      length = methodNames.length;
+
+  while (++index < length) {
+    var key = methodNames[index];
+    object[key] = createWrapper(object[key], BIND_FLAG, object);
+  }
+  return object;
+});
+
+module.exports = bindAll;
+
+},{"lodash._baseflatten":6,"lodash._createwrapper":8,"lodash.functions":11,"lodash.restparam":16}],11:[function(require,module,exports){
+/**
+ * lodash 3.0.0 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.7.0 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var baseFunctions = require('lodash._basefunctions'),
+    keysIn = require('lodash.keysin');
+
+/**
+ * Creates an array of function property names from all enumerable properties,
+ * own and inherited, of `object`.
+ *
+ * @static
+ * @memberOf _
+ * @alias methods
+ * @category Object
+ * @param {Object} object The object to inspect.
+ * @returns {Array} Returns the new array of property names.
+ * @example
+ *
+ * _.functions(_);
+ * // => ['all', 'any', 'bind', ...]
+ */
+function functions(object) {
+  return baseFunctions(object, keysIn(object));
+}
+
+module.exports = functions;
+
+},{"lodash._basefunctions":7,"lodash.keysin":15}],12:[function(require,module,exports){
+/**
+ * lodash 3.0.7 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * Gets the "length" property value of `object`.
+ *
+ * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+ * that affects Safari on at least iOS 8.1-8.3 ARM64.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {*} Returns the "length" value.
+ */
+var getLength = baseProperty('length');
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null &&
+    !(typeof value == 'function' && isFunction(value)) && isLength(getLength(value));
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object, else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array constructors, and
+  // PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+module.exports = isArguments;
+
+},{}],13:[function(require,module,exports){
+/**
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var arrayTag = '[object Array]',
+    funcTag = '[object Function]';
+
+/** Used to detect host constructors (Safari > 5). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var fnToString = Function.prototype.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objToString = objectProto.toString;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/* Native method references for those with the same name as other `lodash` methods. */
+var nativeIsArray = getNative(Array, 'isArray');
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = object == null ? undefined : object[key];
+  return isNative(value) ? value : undefined;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(function() { return arguments; }());
+ * // => false
+ */
+var isArray = nativeIsArray || function(value) {
+  return isObjectLike(value) && isLength(value.length) && objToString.call(value) == arrayTag;
+};
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in older versions of Chrome and Safari which return 'function' for regexes
+  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  return isObject(value) && objToString.call(value) == funcTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is a native function.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function, else `false`.
+ * @example
+ *
+ * _.isNative(Array.prototype.push);
+ * // => true
+ *
+ * _.isNative(_);
+ * // => false
+ */
+function isNative(value) {
+  if (value == null) {
+    return false;
+  }
+  if (isFunction(value)) {
+    return reIsNative.test(fnToString.call(value));
+  }
+  return isObjectLike(value) && reIsHostCtor.test(value);
+}
+
+module.exports = isArray;
+
+},{}],14:[function(require,module,exports){
+/**
+ * lodash 3.0.8 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array constructors, and
+  // PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+module.exports = isFunction;
+
+},{}],15:[function(require,module,exports){
+/**
+ * lodash 3.0.8 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var isArguments = require('lodash.isarguments'),
+    isArray = require('lodash.isarray');
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^\d+$/;
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return value > -1 && value % 1 == 0 && value < length;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Creates an array of the own and inherited enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keysIn(new Foo);
+ * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+ */
+function keysIn(object) {
+  if (object == null) {
+    return [];
+  }
+  if (!isObject(object)) {
+    object = Object(object);
+  }
+  var length = object.length;
+  length = (length && isLength(length) &&
+    (isArray(object) || isArguments(object)) && length) || 0;
+
+  var Ctor = object.constructor,
+      index = -1,
+      isProto = typeof Ctor == 'function' && Ctor.prototype === object,
+      result = Array(length),
+      skipIndexes = length > 0;
+
+  while (++index < length) {
+    result[index] = (index + '');
+  }
+  for (var key in object) {
+    if (!(skipIndexes && isIndex(key, length)) &&
+        !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+module.exports = keysIn;
+
+},{"lodash.isarguments":12,"lodash.isarray":13}],16:[function(require,module,exports){
+/**
+ * lodash 3.6.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/* Native method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max;
+
+/**
+ * Creates a function that invokes `func` with the `this` binding of the
+ * created function and arguments from `start` and beyond provided as an array.
+ *
+ * **Note:** This method is based on the [rest parameter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters).
+ *
+ * @static
+ * @memberOf _
+ * @category Function
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ * @example
+ *
+ * var say = _.restParam(function(what, names) {
+ *   return what + ' ' + _.initial(names).join(', ') +
+ *     (_.size(names) > 1 ? ', & ' : '') + _.last(names);
+ * });
+ *
+ * say('hello', 'fred', 'barney', 'pebbles');
+ * // => 'hello fred, barney, & pebbles'
+ */
+function restParam(func, start) {
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  start = nativeMax(start === undefined ? (func.length - 1) : (+start || 0), 0);
+  return function() {
+    var args = arguments,
+        index = -1,
+        length = nativeMax(args.length - start, 0),
+        rest = Array(length);
+
+    while (++index < length) {
+      rest[index] = args[start + index];
+    }
+    switch (start) {
+      case 0: return func.call(this, rest);
+      case 1: return func.call(this, args[0], rest);
+      case 2: return func.call(this, args[0], args[1], rest);
+    }
+    var otherArgs = Array(start + 1);
+    index = -1;
+    while (++index < start) {
+      otherArgs[index] = args[index];
+    }
+    otherArgs[start] = rest;
+    return func.apply(this, otherArgs);
+  };
+}
+
+module.exports = restParam;
+
+},{}],17:[function(require,module,exports){
+function identity(x) { return x; }
+
+module.exports = identity;
+module.exports.dash = identity;
+module.exports.dash = identity;
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+var bindAll = require('lodash.bindall');
+var transform = require('dom-transform');
+var tinycolor = require('tinycolor2');
+var Emitter = require('component-emitter');
+var isNumber = require('is-number');
+var clamp = require('./src/utils/maths/clamp');
+
+/**
+ * Creates a new Colorpicker
+ * @param {Object} options
+ * @param {String|Number|Object} options.color The default color that the colorpicker will display. Default is #FFFFFF. It can be a hexadecimal number or an hex String.
+ * @param {String|Number|Object} options.background The background color of the colorpicker. Default is transparent. It can be a hexadecimal number or an hex String.
+ * @param {DomElement} options.el A dom node to add the colorpicker to. You can also use `colorPicker.appendTo(domNode)` afterwards if you prefer.
+ * @param {Number} options.width Desired width of the color picker. Default is 175.
+ * @param {Number} options.height Desired height of the color picker. Default is 150.
+ */
+function SimpleColorPicker(options) {
+  // options
+  options = options || {};
+
+  // properties
+  this.color = null;
+  this.width = 0;
+  this.height = 0;
+  this.hue = 0;
+  this.choosing = false;
+  this.position = {x: 0, y: 0};
+  this.huePosition = 0;
+  this.saturationWidth = 0;
+  this.maxHue = 0;
+  this.inputIsNumber = false;
+
+  // bind methods to scope (only if needed)
+  bindAll(this, '_onSaturationMouseMove', '_onSaturationMouseDown', '_onSaturationMouseUp', '_onHueMouseDown', '_onHueMouseUp', '_onHueMouseMove');
+
+  // create dom
+  this.$el = document.createElement('div');
+  this.$el.className = 'Scp';
+  this.$el.innerHTML = [
+    '<div class="Scp-saturation">',
+      '<div class="Scp-brightness"></div>',
+      '<div class="Scp-sbSelector"></div>',
+    '</div>',
+    '<div class="Scp-hue">',
+      '<div class="Scp-hSelector"></div>',
+    '</div>'
+  ].join('\n');
+
+  // dom accessors
+  this.$saturation = this.$el.querySelector('.Scp-saturation');
+  this.$hue = this.$el.querySelector('.Scp-hue');
+  this.$sbSelector = this.$el.querySelector('.Scp-sbSelector');
+  this.$hSelector = this.$el.querySelector('.Scp-hSelector');
+
+  // event listeners
+  this.$saturation.addEventListener('mousedown', this._onSaturationMouseDown);
+  this.$saturation.addEventListener('touchstart', this._onSaturationMouseDown);
+  this.$hue.addEventListener('mousedown', this._onHueMouseDown);
+  this.$hue.addEventListener('touchstart', this._onHueMouseDown);
+
+  // some styling and DOMing from options
+  if (options.el) {
+    this.appendTo(options.el);
+  }
+  if (options.background) {
+    this.setBackgroundColor(options.background);
+  }
+  this.setSize(options.width || 175, options.height || 150);
+  this.setColor(options.color);
+
+  return this;
+}
+
+Emitter(SimpleColorPicker.prototype);
+
+/* =============================================================================
+  Public API
+============================================================================= */
+/**
+ * Add the colorPicker instance to a domElement.
+ * @param  {domElement} domElement
+ * @return {colorPicker} returns itself for chaining purpose
+ */
+SimpleColorPicker.prototype.appendTo = function(domElement) {
+  domElement.appendChild(this.$el);
+  return this;
+};
+
+/**
+ * Removes colorpicker from is parent and kill all listeners.
+ * Call this method for proper destroy.
+ */
+SimpleColorPicker.prototype.remove = function() {
+  this.$saturation.removeEventListener('mousedown', this._onSaturationMouseDown);
+  this.$saturation.removeEventListener('touchstart', this._onSaturationMouseDown);
+  this.$hue.removeEventListener('mousedown', this._onHueMouseDown);
+  this.$hue.removeEventListener('touchstart', this._onHueMouseDown);
+  this._onSaturationMouseUp();
+  this._onHueMouseUp();
+  this.off();
+  if (this.$el.parentNode) {
+    this.$el.parentNode.removeChild(this.$el);
+  }
+};
+
+/**
+ * Manually set the current color of the colorpicker. This is the method
+ * used on instantiation to convert `color` option to actual color for
+ * the colorpicker. Param can be a hexadecimal number or an hex String.
+ * @param {String|Number} color hex color desired
+ */
+SimpleColorPicker.prototype.setColor = function(color) {
+  if(isNumber(color)) {
+    this.inputIsNumber = true;
+    color = '#' + ('00000' + (color | 0).toString(16)).substr(-6);
+  }
+  else {
+    this.inputIsNumber = false;
+  }
+  this.color = tinycolor(color);
+
+  var hsvColor = this.color.toHsv();
+
+  if(!isNaN(hsvColor.h)) {
+    this.hue = hsvColor.h;
+  }
+
+  this._moveSelectorTo(this.saturationWidth * hsvColor.s, (1 - hsvColor.v) * this.height);
+  this._moveHueTo((1 - (this.hue / 360)) * this.height);
+
+  this._updateHue();
+  return this;
+};
+
+/**
+ * Set size of the color picker for a given width and height. Note that
+ * a padding of 5px will be added if you chose to use the background option
+ * of the constructor.
+ * @param {Number} width
+ * @param {Number} height
+ */
+SimpleColorPicker.prototype.setSize = function(width, height) {
+  this.width = width;
+  this.height = height;
+  this.$el.style.width = this.width + 'px';
+  this.$el.style.height = this.height + 'px';
+  this.saturationWidth = this.width - 25;
+  this.maxHue = this.height - 2;
+  return this;
+};
+
+/**
+ * Set the background color of the colorpicker. It also adds a 5px padding
+ * for design purpose.
+ * @param {String|Number} color hex color desired for background
+ */
+SimpleColorPicker.prototype.setBackgroundColor = function(color) {
+  if(isNumber(color)) {
+    color = '#' + ('00000' + (color | 0).toString(16)).substr(-6);
+  }
+  this.$el.style.padding = '5px';
+  this.$el.style.background = tinycolor(color).toHexString();
+};
+
+/**
+ * Removes background of the colorpicker if previously set. It's no use
+ * calling this method if you didn't set the background option on start
+ * or if you didn't call setBackgroundColor previously.
+ */
+SimpleColorPicker.prototype.setNoBackground = function() {
+  this.$el.style.padding = '0px';
+  this.$el.style.background = 'none';
+};
+
+/**
+ * Registers callback to the update event of the colorpicker.
+ * ColorPicker inherits from [component/emitter](https://github.com/component/emitter)
+ * so you could do the same thing by calling `colorPicker.on('update');`
+ * @param  {Function} callback
+ * @return {colorPicker} returns itself for chaining purpose
+ */
+SimpleColorPicker.prototype.onChange = function(callback) {
+  this.on('update', callback);
+  this.emit('update', this.getHexString());
+  return this;
+};
+
+/* =============================================================================
+  Color getters
+============================================================================= */
+/**
+ * Main color getter, will return a formatted color string depending on input
+ * or a number depending on the last setColor call.
+ * @return {Number|String}
+ */
+SimpleColorPicker.prototype.getColor = function() {
+  if(this.inputIsNumber) {
+    return this.getHexNumber();
+  }
+  return this.color.toString();
+};
+
+/**
+ * Returns color as css hex string (ex: '#FF0000').
+ * @return {String}
+ */
+SimpleColorPicker.prototype.getHexString = function() {
+  return this.color.toHexString().toUpperCase();
+};
+
+/**
+ * Returns color as number (ex: 0xFF0000).
+ * @return {Number}
+ */
+SimpleColorPicker.prototype.getHexNumber = function() {
+  return parseInt(this.color.toHex(), 16);
+};
+
+/**
+ * Returns color as {r: 255, g: 0, b: 0} object.
+ * @return {Object}
+ */
+SimpleColorPicker.prototype.getRGB = function() {
+  return this.color.toRgb();
+};
+
+/**
+ * Returns color as {h: 100, s: 1, v: 1} object.
+ * @return {Object}
+ */
+SimpleColorPicker.prototype.getHSV = function() {
+  return this.color.toHsv();
+};
+
+/**
+ * Returns true if color is perceived as dark
+ * @return {Boolean}
+ */
+SimpleColorPicker.prototype.isDark = function() {
+  return this.color.isDark();
+};
+
+/**
+ * Returns true if color is perceived as light
+ * @return {Boolean}
+ */
+SimpleColorPicker.prototype.isLight = function() {
+  return this.color.isLight();
+};
+
+/* =============================================================================
+  "Private" Methods LOL silly javascript
+============================================================================= */
+SimpleColorPicker.prototype._moveSelectorTo = function(x, y) {
+  this.position.x = clamp(x, 0, this.saturationWidth);
+  this.position.y = clamp(y, 0, this.height);
+
+  transform(this.$sbSelector, {
+    x: this.position.x,
+    y: this.position.y
+  });
+
+};
+
+SimpleColorPicker.prototype._updateColorFromPosition = function() {
+  this.color = tinycolor({h: this.hue, s: this.position.x / this.saturationWidth, v: 1 - (this.position.y / this.height)});
+  this._updateColor();
+};
+
+SimpleColorPicker.prototype._moveHueTo = function(y) {
+  this.huePosition = clamp(y, 0, this.maxHue);
+
+  transform(this.$hSelector, {
+    y: this.huePosition
+  });
+
+};
+
+SimpleColorPicker.prototype._updateHueFromPosition = function() {
+  var hsvColor = this.color.toHsv();
+  this.hue = 360 * (1 - (this.huePosition / this.maxHue));
+  this.color = tinycolor({h: this.hue, s: hsvColor.s, v: hsvColor.v});
+  this._updateHue();
+};
+
+SimpleColorPicker.prototype._updateHue = function() {
+  var hueColor = tinycolor({h: this.hue, s: 1, v: 1});
+  this.$saturation.style.background = 'linear-gradient(to right, #fff 0%, ' + hueColor.toHexString() + ' 100%)';
+  this._updateColor();
+};
+
+SimpleColorPicker.prototype._updateColor = function() {
+  this.$sbSelector.style.background = this.color.toHexString();
+  this.$sbSelector.style.borderColor = this.color.isDark() ? '#FFF' : '#000';
+  this.emit('update', this.color.toHexString());
+};
+
+/* =============================================================================
+  Events handlers
+============================================================================= */
+SimpleColorPicker.prototype._onSaturationMouseDown = function(e) {
+  this.choosing = true;
+  var sbOffset = this.$saturation.getBoundingClientRect();
+  var xPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientX : e.clientX;
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveSelectorTo(xPos - sbOffset.left, yPos - sbOffset.top);
+  this._updateColorFromPosition();
+  window.addEventListener('mouseup', this._onSaturationMouseUp);
+  window.addEventListener('touchend', this._onSaturationMouseUp);
+  window.addEventListener('mousemove', this._onSaturationMouseMove);
+  window.addEventListener('touchmove', this._onSaturationMouseMove);
+  e.preventDefault();
+};
+
+SimpleColorPicker.prototype._onSaturationMouseMove = function(e) {
+  var sbOffset = this.$saturation.getBoundingClientRect();
+  var xPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientX : e.clientX;
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveSelectorTo(xPos - sbOffset.left, yPos - sbOffset.top);
+  this._updateColorFromPosition();
+};
+
+SimpleColorPicker.prototype._onSaturationMouseUp = function() {
+  this.choosing = false;
+  window.removeEventListener('mouseup', this._onSaturationMouseUp);
+  window.removeEventListener('touchend', this._onSaturationMouseUp);
+  window.removeEventListener('mousemove', this._onSaturationMouseMove);
+  window.removeEventListener('touchmove', this._onSaturationMouseMove);
+};
+
+SimpleColorPicker.prototype._onHueMouseDown = function(e) {
+  this.choosing = true;
+  var hOffset = this.$hue.getBoundingClientRect();
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveHueTo(yPos - hOffset.top);
+  this._updateHueFromPosition();
+  window.addEventListener('mouseup', this._onHueMouseUp);
+  window.addEventListener('touchend', this._onHueMouseUp);
+  window.addEventListener('mousemove', this._onHueMouseMove);
+  window.addEventListener('touchmove', this._onHueMouseMove);
+  e.preventDefault();
+};
+
+SimpleColorPicker.prototype._onHueMouseMove = function(e) {
+  var hOffset = this.$hue.getBoundingClientRect();
+  var yPos = (e.type.indexOf('touch') === 0) ? e.touches[0].clientY : e.clientY;
+  this._moveHueTo(yPos - hOffset.top);
+  this._updateHueFromPosition();
+};
+
+SimpleColorPicker.prototype._onHueMouseUp = function() {
+  this.choosing = false;
+  window.removeEventListener('mouseup', this._onHueMouseUp);
+  window.removeEventListener('touchend', this._onHueMouseUp);
+  window.removeEventListener('mousemove', this._onHueMouseMove);
+  window.removeEventListener('touchmove', this._onHueMouseMove);
+};
+
+module.exports = SimpleColorPicker;
+
+},{"./src/utils/maths/clamp":20,"component-emitter":1,"dom-transform":2,"is-number":19,"lodash.bindall":10,"tinycolor2":21}],19:[function(require,module,exports){
+/*!
+ * is-number <https://github.com/jonschlinkert/is-number>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+'use strict';
+
+module.exports = function isNumber(n) {
+  return (!!(+n) && !Array.isArray(n)) && isFinite(n)
+    || n === '0'
+    || n === 0;
+};
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
+module.exports = function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+};
+},{}],21:[function(require,module,exports){
+// TinyColor v1.3.0
+// https://github.com/bgrins/TinyColor
+// Brian Grinstead, MIT License
+
+(function() {
+
+var trimLeft = /^\s+/,
+    trimRight = /\s+$/,
+    tinyCounter = 0,
+    math = Math,
+    mathRound = math.round,
+    mathMin = math.min,
+    mathMax = math.max,
+    mathRandom = math.random;
+
+function tinycolor (color, opts) {
+
+    color = (color) ? color : '';
+    opts = opts || { };
+
+    // If input is already a tinycolor, return itself
+    if (color instanceof tinycolor) {
+       return color;
+    }
+    // If we are called as a function, call using new instead
+    if (!(this instanceof tinycolor)) {
+        return new tinycolor(color, opts);
+    }
+
+    var rgb = inputToRGB(color);
+    this._originalInput = color,
+    this._r = rgb.r,
+    this._g = rgb.g,
+    this._b = rgb.b,
+    this._a = rgb.a,
+    this._roundA = mathRound(100*this._a) / 100,
+    this._format = opts.format || rgb.format;
+    this._gradientType = opts.gradientType;
+
+    // Don't let the range of [0,255] come back in [0,1].
+    // Potentially lose a little bit of precision here, but will fix issues where
+    // .5 gets interpreted as half of the total, instead of half of 1
+    // If it was supposed to be 128, this was already taken care of by `inputToRgb`
+    if (this._r < 1) { this._r = mathRound(this._r); }
+    if (this._g < 1) { this._g = mathRound(this._g); }
+    if (this._b < 1) { this._b = mathRound(this._b); }
+
+    this._ok = rgb.ok;
+    this._tc_id = tinyCounter++;
+}
+
+tinycolor.prototype = {
+    isDark: function() {
+        return this.getBrightness() < 128;
+    },
+    isLight: function() {
+        return !this.isDark();
+    },
+    isValid: function() {
+        return this._ok;
+    },
+    getOriginalInput: function() {
+      return this._originalInput;
+    },
+    getFormat: function() {
+        return this._format;
+    },
+    getAlpha: function() {
+        return this._a;
+    },
+    getBrightness: function() {
+        //http://www.w3.org/TR/AERT#color-contrast
+        var rgb = this.toRgb();
+        return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+    },
+    getLuminance: function() {
+        //http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+        var rgb = this.toRgb();
+        var RsRGB, GsRGB, BsRGB, R, G, B;
+        RsRGB = rgb.r/255;
+        GsRGB = rgb.g/255;
+        BsRGB = rgb.b/255;
+
+        if (RsRGB <= 0.03928) {R = RsRGB / 12.92;} else {R = Math.pow(((RsRGB + 0.055) / 1.055), 2.4);}
+        if (GsRGB <= 0.03928) {G = GsRGB / 12.92;} else {G = Math.pow(((GsRGB + 0.055) / 1.055), 2.4);}
+        if (BsRGB <= 0.03928) {B = BsRGB / 12.92;} else {B = Math.pow(((BsRGB + 0.055) / 1.055), 2.4);}
+        return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+    },
+    setAlpha: function(value) {
+        this._a = boundAlpha(value);
+        this._roundA = mathRound(100*this._a) / 100;
+        return this;
+    },
+    toHsv: function() {
+        var hsv = rgbToHsv(this._r, this._g, this._b);
+        return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this._a };
+    },
+    toHsvString: function() {
+        var hsv = rgbToHsv(this._r, this._g, this._b);
+        var h = mathRound(hsv.h * 360), s = mathRound(hsv.s * 100), v = mathRound(hsv.v * 100);
+        return (this._a == 1) ?
+          "hsv("  + h + ", " + s + "%, " + v + "%)" :
+          "hsva(" + h + ", " + s + "%, " + v + "%, "+ this._roundA + ")";
+    },
+    toHsl: function() {
+        var hsl = rgbToHsl(this._r, this._g, this._b);
+        return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this._a };
+    },
+    toHslString: function() {
+        var hsl = rgbToHsl(this._r, this._g, this._b);
+        var h = mathRound(hsl.h * 360), s = mathRound(hsl.s * 100), l = mathRound(hsl.l * 100);
+        return (this._a == 1) ?
+          "hsl("  + h + ", " + s + "%, " + l + "%)" :
+          "hsla(" + h + ", " + s + "%, " + l + "%, "+ this._roundA + ")";
+    },
+    toHex: function(allow3Char) {
+        return rgbToHex(this._r, this._g, this._b, allow3Char);
+    },
+    toHexString: function(allow3Char) {
+        return '#' + this.toHex(allow3Char);
+    },
+    toHex8: function() {
+        return rgbaToHex(this._r, this._g, this._b, this._a);
+    },
+    toHex8String: function() {
+        return '#' + this.toHex8();
+    },
+    toRgb: function() {
+        return { r: mathRound(this._r), g: mathRound(this._g), b: mathRound(this._b), a: this._a };
+    },
+    toRgbString: function() {
+        return (this._a == 1) ?
+          "rgb("  + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ")" :
+          "rgba(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ", " + this._roundA + ")";
+    },
+    toPercentageRgb: function() {
+        return { r: mathRound(bound01(this._r, 255) * 100) + "%", g: mathRound(bound01(this._g, 255) * 100) + "%", b: mathRound(bound01(this._b, 255) * 100) + "%", a: this._a };
+    },
+    toPercentageRgbString: function() {
+        return (this._a == 1) ?
+          "rgb("  + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%)" :
+          "rgba(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%, " + this._roundA + ")";
+    },
+    toName: function() {
+        if (this._a === 0) {
+            return "transparent";
+        }
+
+        if (this._a < 1) {
+            return false;
+        }
+
+        return hexNames[rgbToHex(this._r, this._g, this._b, true)] || false;
+    },
+    toFilter: function(secondColor) {
+        var hex8String = '#' + rgbaToHex(this._r, this._g, this._b, this._a);
+        var secondHex8String = hex8String;
+        var gradientType = this._gradientType ? "GradientType = 1, " : "";
+
+        if (secondColor) {
+            var s = tinycolor(secondColor);
+            secondHex8String = s.toHex8String();
+        }
+
+        return "progid:DXImageTransform.Microsoft.gradient("+gradientType+"startColorstr="+hex8String+",endColorstr="+secondHex8String+")";
+    },
+    toString: function(format) {
+        var formatSet = !!format;
+        format = format || this._format;
+
+        var formattedString = false;
+        var hasAlpha = this._a < 1 && this._a >= 0;
+        var needsAlphaFormat = !formatSet && hasAlpha && (format === "hex" || format === "hex6" || format === "hex3" || format === "name");
+
+        if (needsAlphaFormat) {
+            // Special case for "transparent", all other non-alpha formats
+            // will return rgba when there is transparency.
+            if (format === "name" && this._a === 0) {
+                return this.toName();
+            }
+            return this.toRgbString();
+        }
+        if (format === "rgb") {
+            formattedString = this.toRgbString();
+        }
+        if (format === "prgb") {
+            formattedString = this.toPercentageRgbString();
+        }
+        if (format === "hex" || format === "hex6") {
+            formattedString = this.toHexString();
+        }
+        if (format === "hex3") {
+            formattedString = this.toHexString(true);
+        }
+        if (format === "hex8") {
+            formattedString = this.toHex8String();
+        }
+        if (format === "name") {
+            formattedString = this.toName();
+        }
+        if (format === "hsl") {
+            formattedString = this.toHslString();
+        }
+        if (format === "hsv") {
+            formattedString = this.toHsvString();
+        }
+
+        return formattedString || this.toHexString();
+    },
+    clone: function() {
+        return tinycolor(this.toString());
+    },
+
+    _applyModification: function(fn, args) {
+        var color = fn.apply(null, [this].concat([].slice.call(args)));
+        this._r = color._r;
+        this._g = color._g;
+        this._b = color._b;
+        this.setAlpha(color._a);
+        return this;
+    },
+    lighten: function() {
+        return this._applyModification(lighten, arguments);
+    },
+    brighten: function() {
+        return this._applyModification(brighten, arguments);
+    },
+    darken: function() {
+        return this._applyModification(darken, arguments);
+    },
+    desaturate: function() {
+        return this._applyModification(desaturate, arguments);
+    },
+    saturate: function() {
+        return this._applyModification(saturate, arguments);
+    },
+    greyscale: function() {
+        return this._applyModification(greyscale, arguments);
+    },
+    spin: function() {
+        return this._applyModification(spin, arguments);
+    },
+
+    _applyCombination: function(fn, args) {
+        return fn.apply(null, [this].concat([].slice.call(args)));
+    },
+    analogous: function() {
+        return this._applyCombination(analogous, arguments);
+    },
+    complement: function() {
+        return this._applyCombination(complement, arguments);
+    },
+    monochromatic: function() {
+        return this._applyCombination(monochromatic, arguments);
+    },
+    splitcomplement: function() {
+        return this._applyCombination(splitcomplement, arguments);
+    },
+    triad: function() {
+        return this._applyCombination(triad, arguments);
+    },
+    tetrad: function() {
+        return this._applyCombination(tetrad, arguments);
+    }
+};
+
+// If input is an object, force 1 into "1.0" to handle ratios properly
+// String input requires "1.0" as input, so 1 will be treated as 1
+tinycolor.fromRatio = function(color, opts) {
+    if (typeof color == "object") {
+        var newColor = {};
+        for (var i in color) {
+            if (color.hasOwnProperty(i)) {
+                if (i === "a") {
+                    newColor[i] = color[i];
+                }
+                else {
+                    newColor[i] = convertToPercentage(color[i]);
+                }
+            }
+        }
+        color = newColor;
+    }
+
+    return tinycolor(color, opts);
+};
+
+// Given a string or object, convert that input to RGB
+// Possible string inputs:
+//
+//     "red"
+//     "#f00" or "f00"
+//     "#ff0000" or "ff0000"
+//     "#ff000000" or "ff000000"
+//     "rgb 255 0 0" or "rgb (255, 0, 0)"
+//     "rgb 1.0 0 0" or "rgb (1, 0, 0)"
+//     "rgba (255, 0, 0, 1)" or "rgba 255, 0, 0, 1"
+//     "rgba (1.0, 0, 0, 1)" or "rgba 1.0, 0, 0, 1"
+//     "hsl(0, 100%, 50%)" or "hsl 0 100% 50%"
+//     "hsla(0, 100%, 50%, 1)" or "hsla 0 100% 50%, 1"
+//     "hsv(0, 100%, 100%)" or "hsv 0 100% 100%"
+//
+function inputToRGB(color) {
+
+    var rgb = { r: 0, g: 0, b: 0 };
+    var a = 1;
+    var ok = false;
+    var format = false;
+
+    if (typeof color == "string") {
+        color = stringInputToObject(color);
+    }
+
+    if (typeof color == "object") {
+        if (color.hasOwnProperty("r") && color.hasOwnProperty("g") && color.hasOwnProperty("b")) {
+            rgb = rgbToRgb(color.r, color.g, color.b);
+            ok = true;
+            format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+        }
+        else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("v")) {
+            color.s = convertToPercentage(color.s);
+            color.v = convertToPercentage(color.v);
+            rgb = hsvToRgb(color.h, color.s, color.v);
+            ok = true;
+            format = "hsv";
+        }
+        else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("l")) {
+            color.s = convertToPercentage(color.s);
+            color.l = convertToPercentage(color.l);
+            rgb = hslToRgb(color.h, color.s, color.l);
+            ok = true;
+            format = "hsl";
+        }
+
+        if (color.hasOwnProperty("a")) {
+            a = color.a;
+        }
+    }
+
+    a = boundAlpha(a);
+
+    return {
+        ok: ok,
+        format: color.format || format,
+        r: mathMin(255, mathMax(rgb.r, 0)),
+        g: mathMin(255, mathMax(rgb.g, 0)),
+        b: mathMin(255, mathMax(rgb.b, 0)),
+        a: a
+    };
+}
+
+
+// Conversion Functions
+// --------------------
+
+// `rgbToHsl`, `rgbToHsv`, `hslToRgb`, `hsvToRgb` modified from:
+// <http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript>
+
+// `rgbToRgb`
+// Handle bounds / percentage checking to conform to CSS color spec
+// <http://www.w3.org/TR/css3-color/>
+// *Assumes:* r, g, b in [0, 255] or [0, 1]
+// *Returns:* { r, g, b } in [0, 255]
+function rgbToRgb(r, g, b){
+    return {
+        r: bound01(r, 255) * 255,
+        g: bound01(g, 255) * 255,
+        b: bound01(b, 255) * 255
+    };
+}
+
+// `rgbToHsl`
+// Converts an RGB color value to HSL.
+// *Assumes:* r, g, and b are contained in [0, 255] or [0, 1]
+// *Returns:* { h, s, l } in [0,1]
+function rgbToHsl(r, g, b) {
+
+    r = bound01(r, 255);
+    g = bound01(g, 255);
+    b = bound01(b, 255);
+
+    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if(max == min) {
+        h = s = 0; // achromatic
+    }
+    else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+
+        h /= 6;
+    }
+
+    return { h: h, s: s, l: l };
+}
+
+// `hslToRgb`
+// Converts an HSL color value to RGB.
+// *Assumes:* h is contained in [0, 1] or [0, 360] and s and l are contained [0, 1] or [0, 100]
+// *Returns:* { r, g, b } in the set [0, 255]
+function hslToRgb(h, s, l) {
+    var r, g, b;
+
+    h = bound01(h, 360);
+    s = bound01(s, 100);
+    l = bound01(l, 100);
+
+    function hue2rgb(p, q, t) {
+        if(t < 0) t += 1;
+        if(t > 1) t -= 1;
+        if(t < 1/6) return p + (q - p) * 6 * t;
+        if(t < 1/2) return q;
+        if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+    }
+
+    if(s === 0) {
+        r = g = b = l; // achromatic
+    }
+    else {
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return { r: r * 255, g: g * 255, b: b * 255 };
+}
+
+// `rgbToHsv`
+// Converts an RGB color value to HSV
+// *Assumes:* r, g, and b are contained in the set [0, 255] or [0, 1]
+// *Returns:* { h, s, v } in [0,1]
+function rgbToHsv(r, g, b) {
+
+    r = bound01(r, 255);
+    g = bound01(g, 255);
+    b = bound01(b, 255);
+
+    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+    var h, s, v = max;
+
+    var d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if(max == min) {
+        h = 0; // achromatic
+    }
+    else {
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return { h: h, s: s, v: v };
+}
+
+// `hsvToRgb`
+// Converts an HSV color value to RGB.
+// *Assumes:* h is contained in [0, 1] or [0, 360] and s and v are contained in [0, 1] or [0, 100]
+// *Returns:* { r, g, b } in the set [0, 255]
+ function hsvToRgb(h, s, v) {
+
+    h = bound01(h, 360) * 6;
+    s = bound01(s, 100);
+    v = bound01(v, 100);
+
+    var i = math.floor(h),
+        f = h - i,
+        p = v * (1 - s),
+        q = v * (1 - f * s),
+        t = v * (1 - (1 - f) * s),
+        mod = i % 6,
+        r = [v, q, p, p, t, v][mod],
+        g = [t, v, v, q, p, p][mod],
+        b = [p, p, t, v, v, q][mod];
+
+    return { r: r * 255, g: g * 255, b: b * 255 };
+}
+
+// `rgbToHex`
+// Converts an RGB color to hex
+// Assumes r, g, and b are contained in the set [0, 255]
+// Returns a 3 or 6 character hex
+function rgbToHex(r, g, b, allow3Char) {
+
+    var hex = [
+        pad2(mathRound(r).toString(16)),
+        pad2(mathRound(g).toString(16)),
+        pad2(mathRound(b).toString(16))
+    ];
+
+    // Return a 3 character hex if possible
+    if (allow3Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)) {
+        return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+    }
+
+    return hex.join("");
+}
+
+// `rgbaToHex`
+// Converts an RGBA color plus alpha transparency to hex
+// Assumes r, g, b and a are contained in the set [0, 255]
+// Returns an 8 character hex
+function rgbaToHex(r, g, b, a) {
+
+    var hex = [
+        pad2(convertDecimalToHex(a)),
+        pad2(mathRound(r).toString(16)),
+        pad2(mathRound(g).toString(16)),
+        pad2(mathRound(b).toString(16))
+    ];
+
+    return hex.join("");
+}
+
+// `equals`
+// Can be called with any tinycolor input
+tinycolor.equals = function (color1, color2) {
+    if (!color1 || !color2) { return false; }
+    return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+};
+
+tinycolor.random = function() {
+    return tinycolor.fromRatio({
+        r: mathRandom(),
+        g: mathRandom(),
+        b: mathRandom()
+    });
+};
+
+
+// Modification Functions
+// ----------------------
+// Thanks to less.js for some of the basics here
+// <https://github.com/cloudhead/less.js/blob/master/lib/less/functions.js>
+
+function desaturate(color, amount) {
+    amount = (amount === 0) ? 0 : (amount || 10);
+    var hsl = tinycolor(color).toHsl();
+    hsl.s -= amount / 100;
+    hsl.s = clamp01(hsl.s);
+    return tinycolor(hsl);
+}
+
+function saturate(color, amount) {
+    amount = (amount === 0) ? 0 : (amount || 10);
+    var hsl = tinycolor(color).toHsl();
+    hsl.s += amount / 100;
+    hsl.s = clamp01(hsl.s);
+    return tinycolor(hsl);
+}
+
+function greyscale(color) {
+    return tinycolor(color).desaturate(100);
+}
+
+function lighten (color, amount) {
+    amount = (amount === 0) ? 0 : (amount || 10);
+    var hsl = tinycolor(color).toHsl();
+    hsl.l += amount / 100;
+    hsl.l = clamp01(hsl.l);
+    return tinycolor(hsl);
+}
+
+function brighten(color, amount) {
+    amount = (amount === 0) ? 0 : (amount || 10);
+    var rgb = tinycolor(color).toRgb();
+    rgb.r = mathMax(0, mathMin(255, rgb.r - mathRound(255 * - (amount / 100))));
+    rgb.g = mathMax(0, mathMin(255, rgb.g - mathRound(255 * - (amount / 100))));
+    rgb.b = mathMax(0, mathMin(255, rgb.b - mathRound(255 * - (amount / 100))));
+    return tinycolor(rgb);
+}
+
+function darken (color, amount) {
+    amount = (amount === 0) ? 0 : (amount || 10);
+    var hsl = tinycolor(color).toHsl();
+    hsl.l -= amount / 100;
+    hsl.l = clamp01(hsl.l);
+    return tinycolor(hsl);
+}
+
+// Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+// Values outside of this range will be wrapped into this range.
+function spin(color, amount) {
+    var hsl = tinycolor(color).toHsl();
+    var hue = (mathRound(hsl.h) + amount) % 360;
+    hsl.h = hue < 0 ? 360 + hue : hue;
+    return tinycolor(hsl);
+}
+
+// Combination Functions
+// ---------------------
+// Thanks to jQuery xColor for some of the ideas behind these
+// <https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js>
+
+function complement(color) {
+    var hsl = tinycolor(color).toHsl();
+    hsl.h = (hsl.h + 180) % 360;
+    return tinycolor(hsl);
+}
+
+function triad(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return [
+        tinycolor(color),
+        tinycolor({ h: (h + 120) % 360, s: hsl.s, l: hsl.l }),
+        tinycolor({ h: (h + 240) % 360, s: hsl.s, l: hsl.l })
+    ];
+}
+
+function tetrad(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return [
+        tinycolor(color),
+        tinycolor({ h: (h + 90) % 360, s: hsl.s, l: hsl.l }),
+        tinycolor({ h: (h + 180) % 360, s: hsl.s, l: hsl.l }),
+        tinycolor({ h: (h + 270) % 360, s: hsl.s, l: hsl.l })
+    ];
+}
+
+function splitcomplement(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return [
+        tinycolor(color),
+        tinycolor({ h: (h + 72) % 360, s: hsl.s, l: hsl.l}),
+        tinycolor({ h: (h + 216) % 360, s: hsl.s, l: hsl.l})
+    ];
+}
+
+function analogous(color, results, slices) {
+    results = results || 6;
+    slices = slices || 30;
+
+    var hsl = tinycolor(color).toHsl();
+    var part = 360 / slices;
+    var ret = [tinycolor(color)];
+
+    for (hsl.h = ((hsl.h - (part * results >> 1)) + 720) % 360; --results; ) {
+        hsl.h = (hsl.h + part) % 360;
+        ret.push(tinycolor(hsl));
+    }
+    return ret;
+}
+
+function monochromatic(color, results) {
+    results = results || 6;
+    var hsv = tinycolor(color).toHsv();
+    var h = hsv.h, s = hsv.s, v = hsv.v;
+    var ret = [];
+    var modification = 1 / results;
+
+    while (results--) {
+        ret.push(tinycolor({ h: h, s: s, v: v}));
+        v = (v + modification) % 1;
+    }
+
+    return ret;
+}
+
+// Utility Functions
+// ---------------------
+
+tinycolor.mix = function(color1, color2, amount) {
+    amount = (amount === 0) ? 0 : (amount || 50);
+
+    var rgb1 = tinycolor(color1).toRgb();
+    var rgb2 = tinycolor(color2).toRgb();
+
+    var p = amount / 100;
+    var w = p * 2 - 1;
+    var a = rgb2.a - rgb1.a;
+
+    var w1;
+
+    if (w * a == -1) {
+        w1 = w;
+    } else {
+        w1 = (w + a) / (1 + w * a);
+    }
+
+    w1 = (w1 + 1) / 2;
+
+    var w2 = 1 - w1;
+
+    var rgba = {
+        r: rgb2.r * w1 + rgb1.r * w2,
+        g: rgb2.g * w1 + rgb1.g * w2,
+        b: rgb2.b * w1 + rgb1.b * w2,
+        a: rgb2.a * p  + rgb1.a * (1 - p)
+    };
+
+    return tinycolor(rgba);
+};
+
+
+// Readability Functions
+// ---------------------
+// <http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef (WCAG Version 2)
+
+// `contrast`
+// Analyze the 2 colors and returns the color contrast defined by (WCAG Version 2)
+tinycolor.readability = function(color1, color2) {
+    var c1 = tinycolor(color1);
+    var c2 = tinycolor(color2);
+    return (Math.max(c1.getLuminance(),c2.getLuminance())+0.05) / (Math.min(c1.getLuminance(),c2.getLuminance())+0.05);
+};
+
+// `isReadable`
+// Ensure that foreground and background color combinations meet WCAG2 guidelines.
+// The third argument is an optional Object.
+//      the 'level' property states 'AA' or 'AAA' - if missing or invalid, it defaults to 'AA';
+//      the 'size' property states 'large' or 'small' - if missing or invalid, it defaults to 'small'.
+// If the entire object is absent, isReadable defaults to {level:"AA",size:"small"}.
+
+// *Example*
+//    tinycolor.isReadable("#000", "#111") => false
+//    tinycolor.isReadable("#000", "#111",{level:"AA",size:"large"}) => false
+tinycolor.isReadable = function(color1, color2, wcag2) {
+    var readability = tinycolor.readability(color1, color2);
+    var wcag2Parms, out;
+
+    out = false;
+
+    wcag2Parms = validateWCAG2Parms(wcag2);
+    switch (wcag2Parms.level + wcag2Parms.size) {
+        case "AAsmall":
+        case "AAAlarge":
+            out = readability >= 4.5;
+            break;
+        case "AAlarge":
+            out = readability >= 3;
+            break;
+        case "AAAsmall":
+            out = readability >= 7;
+            break;
+    }
+    return out;
+
+};
+
+// `mostReadable`
+// Given a base color and a list of possible foreground or background
+// colors for that base, returns the most readable color.
+// Optionally returns Black or White if the most readable color is unreadable.
+// *Example*
+//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:false}).toHexString(); // "#112255"
+//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:true}).toHexString();  // "#ffffff"
+//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"large"}).toHexString(); // "#faf3f3"
+//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"small"}).toHexString(); // "#ffffff"
+tinycolor.mostReadable = function(baseColor, colorList, args) {
+    var bestColor = null;
+    var bestScore = 0;
+    var readability;
+    var includeFallbackColors, level, size ;
+    args = args || {};
+    includeFallbackColors = args.includeFallbackColors ;
+    level = args.level;
+    size = args.size;
+
+    for (var i= 0; i < colorList.length ; i++) {
+        readability = tinycolor.readability(baseColor, colorList[i]);
+        if (readability > bestScore) {
+            bestScore = readability;
+            bestColor = tinycolor(colorList[i]);
+        }
+    }
+
+    if (tinycolor.isReadable(baseColor, bestColor, {"level":level,"size":size}) || !includeFallbackColors) {
+        return bestColor;
+    }
+    else {
+        args.includeFallbackColors=false;
+        return tinycolor.mostReadable(baseColor,["#fff", "#000"],args);
+    }
+};
+
+
+// Big List of Colors
+// ------------------
+// <http://www.w3.org/TR/css3-color/#svg-color>
+var names = tinycolor.names = {
+    aliceblue: "f0f8ff",
+    antiquewhite: "faebd7",
+    aqua: "0ff",
+    aquamarine: "7fffd4",
+    azure: "f0ffff",
+    beige: "f5f5dc",
+    bisque: "ffe4c4",
+    black: "000",
+    blanchedalmond: "ffebcd",
+    blue: "00f",
+    blueviolet: "8a2be2",
+    brown: "a52a2a",
+    burlywood: "deb887",
+    burntsienna: "ea7e5d",
+    cadetblue: "5f9ea0",
+    chartreuse: "7fff00",
+    chocolate: "d2691e",
+    coral: "ff7f50",
+    cornflowerblue: "6495ed",
+    cornsilk: "fff8dc",
+    crimson: "dc143c",
+    cyan: "0ff",
+    darkblue: "00008b",
+    darkcyan: "008b8b",
+    darkgoldenrod: "b8860b",
+    darkgray: "a9a9a9",
+    darkgreen: "006400",
+    darkgrey: "a9a9a9",
+    darkkhaki: "bdb76b",
+    darkmagenta: "8b008b",
+    darkolivegreen: "556b2f",
+    darkorange: "ff8c00",
+    darkorchid: "9932cc",
+    darkred: "8b0000",
+    darksalmon: "e9967a",
+    darkseagreen: "8fbc8f",
+    darkslateblue: "483d8b",
+    darkslategray: "2f4f4f",
+    darkslategrey: "2f4f4f",
+    darkturquoise: "00ced1",
+    darkviolet: "9400d3",
+    deeppink: "ff1493",
+    deepskyblue: "00bfff",
+    dimgray: "696969",
+    dimgrey: "696969",
+    dodgerblue: "1e90ff",
+    firebrick: "b22222",
+    floralwhite: "fffaf0",
+    forestgreen: "228b22",
+    fuchsia: "f0f",
+    gainsboro: "dcdcdc",
+    ghostwhite: "f8f8ff",
+    gold: "ffd700",
+    goldenrod: "daa520",
+    gray: "808080",
+    green: "008000",
+    greenyellow: "adff2f",
+    grey: "808080",
+    honeydew: "f0fff0",
+    hotpink: "ff69b4",
+    indianred: "cd5c5c",
+    indigo: "4b0082",
+    ivory: "fffff0",
+    khaki: "f0e68c",
+    lavender: "e6e6fa",
+    lavenderblush: "fff0f5",
+    lawngreen: "7cfc00",
+    lemonchiffon: "fffacd",
+    lightblue: "add8e6",
+    lightcoral: "f08080",
+    lightcyan: "e0ffff",
+    lightgoldenrodyellow: "fafad2",
+    lightgray: "d3d3d3",
+    lightgreen: "90ee90",
+    lightgrey: "d3d3d3",
+    lightpink: "ffb6c1",
+    lightsalmon: "ffa07a",
+    lightseagreen: "20b2aa",
+    lightskyblue: "87cefa",
+    lightslategray: "789",
+    lightslategrey: "789",
+    lightsteelblue: "b0c4de",
+    lightyellow: "ffffe0",
+    lime: "0f0",
+    limegreen: "32cd32",
+    linen: "faf0e6",
+    magenta: "f0f",
+    maroon: "800000",
+    mediumaquamarine: "66cdaa",
+    mediumblue: "0000cd",
+    mediumorchid: "ba55d3",
+    mediumpurple: "9370db",
+    mediumseagreen: "3cb371",
+    mediumslateblue: "7b68ee",
+    mediumspringgreen: "00fa9a",
+    mediumturquoise: "48d1cc",
+    mediumvioletred: "c71585",
+    midnightblue: "191970",
+    mintcream: "f5fffa",
+    mistyrose: "ffe4e1",
+    moccasin: "ffe4b5",
+    navajowhite: "ffdead",
+    navy: "000080",
+    oldlace: "fdf5e6",
+    olive: "808000",
+    olivedrab: "6b8e23",
+    orange: "ffa500",
+    orangered: "ff4500",
+    orchid: "da70d6",
+    palegoldenrod: "eee8aa",
+    palegreen: "98fb98",
+    paleturquoise: "afeeee",
+    palevioletred: "db7093",
+    papayawhip: "ffefd5",
+    peachpuff: "ffdab9",
+    peru: "cd853f",
+    pink: "ffc0cb",
+    plum: "dda0dd",
+    powderblue: "b0e0e6",
+    purple: "800080",
+    rebeccapurple: "663399",
+    red: "f00",
+    rosybrown: "bc8f8f",
+    royalblue: "4169e1",
+    saddlebrown: "8b4513",
+    salmon: "fa8072",
+    sandybrown: "f4a460",
+    seagreen: "2e8b57",
+    seashell: "fff5ee",
+    sienna: "a0522d",
+    silver: "c0c0c0",
+    skyblue: "87ceeb",
+    slateblue: "6a5acd",
+    slategray: "708090",
+    slategrey: "708090",
+    snow: "fffafa",
+    springgreen: "00ff7f",
+    steelblue: "4682b4",
+    tan: "d2b48c",
+    teal: "008080",
+    thistle: "d8bfd8",
+    tomato: "ff6347",
+    turquoise: "40e0d0",
+    violet: "ee82ee",
+    wheat: "f5deb3",
+    white: "fff",
+    whitesmoke: "f5f5f5",
+    yellow: "ff0",
+    yellowgreen: "9acd32"
+};
+
+// Make it easy to access colors via `hexNames[hex]`
+var hexNames = tinycolor.hexNames = flip(names);
+
+
+// Utilities
+// ---------
+
+// `{ 'name1': 'val1' }` becomes `{ 'val1': 'name1' }`
+function flip(o) {
+    var flipped = { };
+    for (var i in o) {
+        if (o.hasOwnProperty(i)) {
+            flipped[o[i]] = i;
+        }
+    }
+    return flipped;
+}
+
+// Return a valid alpha value [0,1] with all invalid values being set to 1
+function boundAlpha(a) {
+    a = parseFloat(a);
+
+    if (isNaN(a) || a < 0 || a > 1) {
+        a = 1;
+    }
+
+    return a;
+}
+
+// Take input from [0, n] and return it as [0, 1]
+function bound01(n, max) {
+    if (isOnePointZero(n)) { n = "100%"; }
+
+    var processPercent = isPercentage(n);
+    n = mathMin(max, mathMax(0, parseFloat(n)));
+
+    // Automatically convert percentage into number
+    if (processPercent) {
+        n = parseInt(n * max, 10) / 100;
+    }
+
+    // Handle floating point rounding errors
+    if ((math.abs(n - max) < 0.000001)) {
+        return 1;
+    }
+
+    // Convert into [0, 1] range if it isn't already
+    return (n % max) / parseFloat(max);
+}
+
+// Force a number between 0 and 1
+function clamp01(val) {
+    return mathMin(1, mathMax(0, val));
+}
+
+// Parse a base-16 hex value into a base-10 integer
+function parseIntFromHex(val) {
+    return parseInt(val, 16);
+}
+
+// Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
+// <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
+function isOnePointZero(n) {
+    return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1;
+}
+
+// Check to see if string passed in is a percentage
+function isPercentage(n) {
+    return typeof n === "string" && n.indexOf('%') != -1;
+}
+
+// Force a hex value to have 2 characters
+function pad2(c) {
+    return c.length == 1 ? '0' + c : '' + c;
+}
+
+// Replace a decimal with it's percentage value
+function convertToPercentage(n) {
+    if (n <= 1) {
+        n = (n * 100) + "%";
+    }
+
+    return n;
+}
+
+// Converts a decimal to a hex value
+function convertDecimalToHex(d) {
+    return Math.round(parseFloat(d) * 255).toString(16);
+}
+// Converts a hex value to a decimal
+function convertHexToDecimal(h) {
+    return (parseIntFromHex(h) / 255);
+}
+
+var matchers = (function() {
+
+    // <http://www.w3.org/TR/css3-values/#integers>
+    var CSS_INTEGER = "[-\\+]?\\d+%?";
+
+    // <http://www.w3.org/TR/css3-values/#number-value>
+    var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+
+    // Allow positive/negative integer/number.  Don't capture the either/or, just the entire outcome.
+    var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+
+    // Actual matching.
+    // Parentheses and commas are optional, but not required.
+    // Whitespace can take the place of commas or opening paren
+    var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+    var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+
+    return {
+        rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+        rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+        hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+        hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+        hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+        hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+        hex3: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+        hex6: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+        hex8: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+    };
+})();
+
+// `stringInputToObject`
+// Permissive string parsing.  Take in a number of formats, and output an object
+// based on detected format.  Returns `{ r, g, b }` or `{ h, s, l }` or `{ h, s, v}`
+function stringInputToObject(color) {
+
+    color = color.replace(trimLeft,'').replace(trimRight, '').toLowerCase();
+    var named = false;
+    if (names[color]) {
+        color = names[color];
+        named = true;
+    }
+    else if (color == 'transparent') {
+        return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+    }
+
+    // Try to match string input using regular expressions.
+    // Keep most of the number bounding out of this function - don't worry about [0,1] or [0,100] or [0,360]
+    // Just return an object and let the conversion functions handle that.
+    // This way the result will be the same whether the tinycolor is initialized with string or object.
+    var match;
+    if ((match = matchers.rgb.exec(color))) {
+        return { r: match[1], g: match[2], b: match[3] };
+    }
+    if ((match = matchers.rgba.exec(color))) {
+        return { r: match[1], g: match[2], b: match[3], a: match[4] };
+    }
+    if ((match = matchers.hsl.exec(color))) {
+        return { h: match[1], s: match[2], l: match[3] };
+    }
+    if ((match = matchers.hsla.exec(color))) {
+        return { h: match[1], s: match[2], l: match[3], a: match[4] };
+    }
+    if ((match = matchers.hsv.exec(color))) {
+        return { h: match[1], s: match[2], v: match[3] };
+    }
+    if ((match = matchers.hsva.exec(color))) {
+        return { h: match[1], s: match[2], v: match[3], a: match[4] };
+    }
+    if ((match = matchers.hex8.exec(color))) {
+        return {
+            a: convertHexToDecimal(match[1]),
+            r: parseIntFromHex(match[2]),
+            g: parseIntFromHex(match[3]),
+            b: parseIntFromHex(match[4]),
+            format: named ? "name" : "hex8"
+        };
+    }
+    if ((match = matchers.hex6.exec(color))) {
+        return {
+            r: parseIntFromHex(match[1]),
+            g: parseIntFromHex(match[2]),
+            b: parseIntFromHex(match[3]),
+            format: named ? "name" : "hex"
+        };
+    }
+    if ((match = matchers.hex3.exec(color))) {
+        return {
+            r: parseIntFromHex(match[1] + '' + match[1]),
+            g: parseIntFromHex(match[2] + '' + match[2]),
+            b: parseIntFromHex(match[3] + '' + match[3]),
+            format: named ? "name" : "hex"
+        };
+    }
+
+    return false;
+}
+
+function validateWCAG2Parms(parms) {
+    // return valid WCAG2 parms for isReadable.
+    // If input parms are invalid, return {"level":"AA", "size":"small"}
+    var level, size;
+    parms = parms || {"level":"AA", "size":"small"};
+    level = (parms.level || "AA").toUpperCase();
+    size = (parms.size || "small").toLowerCase();
+    if (level !== "AA" && level !== "AAA") {
+        level = "AA";
+    }
+    if (size !== "small" && size !== "large") {
+        size = "small";
+    }
+    return {"level":level, "size":size};
+}
+
+// Node: Export function
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = tinycolor;
+}
+// AMD/requirejs: Define the module
+else if (typeof define === 'function' && define.amd) {
+    define(function () {return tinycolor;});
+}
+// Browser: Expose to window
+else {
+    window.tinycolor = tinycolor;
+}
+
+})();
+
+},{}],22:[function(require,module,exports){
+
+exports = module.exports = trim;
+
+function trim(str){
+  return str.replace(/^\s*|\s*$/g, '');
+}
+
+exports.left = function(str){
+  return str.replace(/^\s*/, '');
+};
+
+exports.right = function(str){
+  return str.replace(/\s*$/, '');
+};
+
+},{}],23:[function(require,module,exports){
  var $ = require('jquery')
  var display = require('./js/display.js')
 
+// when the document is loaded .....
  $(function() {
     display()
  })
 
-},{"./js/display.js":3,"jquery":1}],3:[function(require,module,exports){
+},{"./js/display.js":24,"jquery":5}],24:[function(require,module,exports){
 var $ = require('jquery')
+var ColorPicker = require('simple-color-picker');
 
 module.exports = function(){
+  //create the colour picker
+  var colorPicker = new ColorPicker();
+  colorPicker.appendTo(document.querySelector("#picker"))       // append the picker to the document
+  colorPicker.on('update', function(){
+    console.log("picker clicked")
+    for (var i = 1; i < 7; i++){
+      myswatch = "#swatch" + i
+     console.log(myswatch)
 
-  // $('#colour1').click(function (){
-  //   console.log('click1')
-  //   $('#siteTemplate').css("background-color", "orange")
-  // })
-  $('#colour2').click(function (){
-    console.log('click1')
-    $('#siteTemplate').css("background-color", "white")
+      if (document.querySelector(myswatch).style.backgroundcolor == 'white'){
+        document.querySelector(myswatch).style.backgroundcolor = 'orange'
+
+      }
+    }
   })
-  // $('#colour3').click(function (){
-  //   console.log('click1')
-  //   $('#siteTemplate').css("background-color", "blue")
-  // })
+  // listener
+  $('#colour1').click(function (e){
+    console.log('click1', e.target.id)
+    $('#siteTemplate').css("background-color", "white")
+
+
+
+
+
+  })
+
 }
 
-},{"jquery":1}]},{},[2]);
+},{"jquery":5,"simple-color-picker":18}]},{},[23]);

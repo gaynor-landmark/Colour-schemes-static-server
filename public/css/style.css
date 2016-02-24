@@ -30,6 +30,36 @@ h2{
   width: 100%;
   height: 100px
 }
+/*colour palette*/
+#palette{
+  width: 100%;
+  height: auto;
+  margin: 0.1%;
+  /*background-color: orange;*/
+}
+#swatch-container{
+  display: inline-block;
+  width: 72%;
+  height: auto;
+  margin: 7%;
+  /*background-color: blue;*/
+}
+#picker{
+  display: inline-block;
+  width: 12%;
+  height: 150px;
+  margin-right: 1%;
+  /*background-color: red;*/
+}
+.swatch{
+  display:inline-block;
+  height: 50px;
+  width: 100px;
+  background-color: white;
+
+}
+
+/*colour buttons*/
 .colours{
   height: 30px;
   width: 30px;
@@ -82,7 +112,9 @@ img{
 }
 
 /*Color-picker*/
+
 .Scp {
+  display:inline-block;
   width: 175px;
   height: 150px;
   -webkit-user-select: none;
