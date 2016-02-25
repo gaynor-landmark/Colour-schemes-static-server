@@ -2,12 +2,13 @@ body{
   position: relative;
   height: auto;
   width: auto;
-  background: grey;
+  background: Gainsboro;
+
 }
 #topPanel{
   width: auto;
-  background: grey;
-  padding-top: 100px;
+  background: LightGray;
+  padding: 2.5% 5% 0%;
 
 }
 header{
@@ -18,9 +19,15 @@ h1{
   font-size: 250%;
   text-align: center;
 }
+.button{
+  background-color: white;
+  width: 175px;
+  height: 35px;
+}
 #selection{
   width: auto;
   padding: 15px;
+  padding-top: 25px;
   /*background-color: pink;*/
 }
 h2{
@@ -41,29 +48,44 @@ h2{
   display: inline-block;
   width: 72%;
   height: auto;
-  margin: 7%;
+  margin: 1%;
   /*background-color: blue;*/
 }
 #picker{
   display: inline-block;
-  width: 12%;
-  height: 150px;
+  width: 22%;
+  height: auto; /*50px;*/
   margin-right: 1%;
   /*background-color: red;*/
 }
-#add{
-  height: 20px;
-  width: 100px;
-  background-color: white;
-}
+
 .swatch{
   display:inline-block;
-  height: 50px;
-  width: 100px;
+  height: 70px;
+  width: 120px;
   background-color: white;
 
 }
-
+#buttonPanel{
+  width: 100%;
+  height: auto;
+  margin: 0.1%;
+  /*background-color: blue;*/
+}
+#pickerButtonPanel{
+  display: inline-block;
+  width: 22%;
+  height: auto; /*50px;*/
+  margin-right: 1%;
+  /*background-color: red;*/
+}
+#swatchButtonPanel{
+  display: inline-block;
+  width: 72%;
+  height: auto;
+  margin: 1%;
+  /*background-color: blue;*/
+}
 /*colour buttons*/
 .colours{
   height: 30px;

@@ -13521,34 +13521,102 @@ exports.right = function(str){
 },{"./js/display.js":24,"jquery":5}],24:[function(require,module,exports){
 var $ = require('jquery')
 var ColorPicker = require('simple-color-picker');
+var rgb2hex = require('./rgb2hex.js')
 
 module.exports = function(){
   //create the colour picker
   var colorPicker = new ColorPicker();
   colorPicker.appendTo(document.querySelector("#picker"))       // append the picker to the document
+  var colString = colorPicker.getHexString()
   colorPicker.on('update', function(){
-    console.log("picker clicked")
+    colString = colorPicker.getHexString()
+
+     console.log("picker clicked", colString)
+
+  })
+
+  // listen to the add button
+  $("#add").on("click", function addToPalette(){
     for (var i = 1; i < 7; i++){
       myswatch = "#swatch" + i
-     console.log(myswatch)
+      mycolour = "#colour" + i
+      //console.log(myswatch, document.querySelector(myswatch).style.background)
+      var hexcol = rgb2hex($(myswatch).css('background-color'))
+      console.log(myswatch, hexcol, typeof hexcol)
+      // console.log(myswatch, rgb2hex(document.querySelector(myswatch).style.background))
+      if (hexcol.toUpperCase() === '#FFFFFF'){
+        //change the part of the site example based on the option selected
 
-      if (document.querySelector(myswatch).style.backgroundcolor == 'white'){
-        document.querySelector(myswatch).style.backgroundcolor = 'orange'
-
-      }
+        document.querySelector(myswatch).style.background = colString
+        document.querySelector(mycolour).style.background = colString
+        break
+       }
     }
   })
-  // listener
+
+  // // listen to the coloured buttons
+  // for (var c = 1; c < 7; c++){
+  //   var myColourButton = '#colour' + c
+  //   $(myColourButton).click(function (e){
+  //     if ($("#selectElement").val() === "BCK") {
+  //       $('#siteTemplate').css("background-color", document.querySelector(myColourButton).style.background)
+  //     } else if ($("#selectElement").val() === "ART") {
+  //       $('#siteText').css("background-color", document.querySelector(myColourButton).style.background)
+  //     } else if ($("#selectElement").val() === "FNT") {
+  //       $('body').css("color", document.querySelector(myColourButton).style.background)
+  //     }
+  //   })
+  // }
+
+ function updateElement(col){
+   if ($("#selectElement").val() === "BCK") {
+     $('#siteTemplate').css("background-color", col)
+   } else if ($("#selectElement").val() === "ART") {
+     $('#siteText').css("background-color", col)
+   } else if ($("#selectElement").val() === "FNT") {
+     $('body').css("color", col)
+   }
+ }
+
+
+//refactored
   $('#colour1').click(function (e){
+    console.log(e.target.id, document.querySelector('#colour1').style.background)
+    updateElement(document.querySelector('#colour1').style.background)
+  })
+  $('#colour2').click(function (e){
+    console.log('click', e.target.id)
+    updateElement(document.querySelector('#colour2').style.background)
+  })
+  $('#colour3').click(function (e){
     console.log('click1', e.target.id)
-    $('#siteTemplate').css("background-color", "white")
-
-
-
-
-
+    updateElement(document.querySelector('#colour3').style.background)
+  })
+  $('#colour4').click(function (e){
+    console.log('click1', e.target.id)
+    updateElement(document.querySelector('#colour4').style.background)
+  })
+  $('#colour5').click(function (e){
+    console.log('click1', e.target.id)
+    updateElement(document.querySelector('#colour5').style.background)
+  })
+  $('#colour6').click(function (e){
+    console.log('click1', e.target.id)
+    updateElement(document.querySelector('#colour6').style.background)
   })
 
 }
 
-},{"jquery":5,"simple-color-picker":18}]},{},[23]);
+},{"./rgb2hex.js":25,"jquery":5,"simple-color-picker":18}],25:[function(require,module,exports){
+//Utility Functions
+
+
+module.exports =  function (orig){
+  var rgb = orig.replace(/\s/g,'').match(/^rgba?\((\d+),(\d+),(\d+)/i);
+ return (rgb && rgb.length === 4) ? "#" +
+  ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+  ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig;
+}
+
+},{}]},{},[23]);

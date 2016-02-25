@@ -16,6 +16,7 @@ module.exports = function(){
 
   // listen to the add button
   $("#add").on("click", function addToPalette(){
+    var added = false
     for (var i = 1; i < 7; i++){
       myswatch = "#swatch" + i
       mycolour = "#colour" + i
@@ -25,41 +26,58 @@ module.exports = function(){
       // console.log(myswatch, rgb2hex(document.querySelector(myswatch).style.background))
       if (hexcol.toUpperCase() === '#FFFFFF'){
         //change the part of the site example based on the option selected
-
         document.querySelector(myswatch).style.background = colString
         document.querySelector(mycolour).style.background = colString
+        added = true
         break
        }
     }
+    if (!added) alert("The palette is full.")
   })
 
-  // listen to the coloured buttons
+  // // listen to the coloured buttons
+  // for (var c = 1; c < 7; c++){
+  //   var myColourButton = '#colour' + c
+  //   $(myColourButton).click(function (e){
+  //     if ($("#selectElement").val() === "BCK") {
+  //       $('#siteTemplate').css("background-color", document.querySelector(myColourButton).style.background)
+  //     } else if ($("#selectElement").val() === "ART") {
+  //       $('#siteText').css("background-color", document.querySelector(myColourButton).style.background)
+  //     } else if ($("#selectElement").val() === "FNT") {
+  //       $('body').css("color", document.querySelector(myColourButton).style.background)
+  //     }
+  //   })
+  // }
 
+ function updateElement(col){
+   if ($("#selectElement").val() === "BCK") {
+     $('#siteTemplate').css("background-color", col)
+   } else if ($("#selectElement").val() === "ART") {
+     $('#siteText').css("background-color", col)
+   } else if ($("#selectElement").val() === "FNT") {
+     $('body').css("color", col)
+   }
+ }
+
+
+//refactored
   $('#colour1').click(function (e){
-    console.log('click1', e.target.id)
-    if ($("#selectElement").val() === "BCK") {
-      $('#siteTemplate').css("background-color", document.querySelector('#colour1').style.background)
-    } else if ($("#selectElement").val() === "ART") {
-      $('#siteText').css("background-color", document.querySelector('#colour1').style.background)
-    } else if ($("#selectElement").val() === "FNT") {
-      $('body').css("color", document.querySelector('#colour1').style.background)
-    }
+    updateElement(document.querySelector('#colour1').style.background)
   })
   $('#colour2').click(function (e){
-    console.log('click', e.target.id)
-    $('#siteTemplate').css("background-color", document.querySelector('#colour2').style.background)
+    updateElement(document.querySelector('#colour2').style.background)
   })
   $('#colour3').click(function (e){
-    console.log('click1', e.target.id)
-    $('#siteTemplate').css("background-color", document.querySelector('#colour3').style.background)
+    updateElement(document.querySelector('#colour3').style.background)
   })
   $('#colour4').click(function (e){
-    console.log('click1', e.target.id)
-    $('#siteTemplate').css("background-color", document.querySelector('#colour4').style.background)
+    updateElement(document.querySelector('#colour4').style.background)
   })
   $('#colour5').click(function (e){
-    console.log('click1', e.target.id)
-    $('#siteTemplate').css("background-color", document.querySelector('#colour5').style.background)
+    updateElement(document.querySelector('#colour5').style.background)
+  })
+  $('#colour6').click(function (e){
+    updateElement(document.querySelector('#colour6').style.background)
   })
 
 }
