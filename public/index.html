@@ -15,6 +15,7 @@
 
       <div id="palette" >
         <div id="picker">
+           <button id="add">Add to Palette</button>
            <!-- append the picker here -->
         </div>
         <div id="swatch-container">
@@ -29,8 +30,14 @@
       </div>
       <div id="selection" >
         <h2>
-          Select a Background Colour -
+          Select a
+          <select id='selectElement'>
+            <option value="BCK">Background</option>
+            <option value="FNT">Font Colour</option>
+            <option value="ART">Article Background</option>
+          </select>
         </h2>
+
         <div id='colourOptions'>
           <button class='colours' id='colour1'></button>
           <button class='colours' id='colour2'></button>

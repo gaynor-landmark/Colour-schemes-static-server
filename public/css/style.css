@@ -51,6 +51,11 @@ h2{
   margin-right: 1%;
   /*background-color: red;*/
 }
+#add{
+  height: 20px;
+  width: 100px;
+  background-color: white;
+}
 .swatch{
   display:inline-block;
   height: 50px;
@@ -94,6 +99,10 @@ h2{
   align: center;
   width: auto;
   text-align: center;
+}
+#siteText{
+  /*background: red;*/
+  padding: 20px;
 }
 #twinImages{
   /*display:inline-block;*/
