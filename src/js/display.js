@@ -24,6 +24,8 @@ module.exports = function(){
       console.log(myswatch, hexcol, typeof hexcol)
       // console.log(myswatch, rgb2hex(document.querySelector(myswatch).style.background))
       if (hexcol.toUpperCase() === '#FFFFFF'){
+        //change the part of the site example based on the option selected
+
         document.querySelector(myswatch).style.background = colString
         document.querySelector(mycolour).style.background = colString
         break
@@ -35,7 +37,13 @@ module.exports = function(){
 
   $('#colour1').click(function (e){
     console.log('click1', e.target.id)
-    $('#siteTemplate').css("background-color", document.querySelector('#colour1').style.background)
+    if ($("#selectElement").val() === "BCK") {
+      $('#siteTemplate').css("background-color", document.querySelector('#colour1').style.background)
+    } else if ($("#selectElement").val() === "ART") {
+      $('#siteText').css("background-color", document.querySelector('#colour1').style.background)
+    } else if ($("#selectElement").val() === "FNT") {
+      $('body').css("color", document.querySelector('#colour1').style.background)
+    }
   })
   $('#colour2').click(function (e){
     console.log('click', e.target.id)
