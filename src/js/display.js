@@ -6,11 +6,16 @@ module.exports = function(){
   //create the colour picker
   var colorPicker = new ColorPicker();
   colorPicker.appendTo(document.querySelector("#picker"))       // append the picker to the document
+  var colString = colorPicker.getHexString()
   colorPicker.on('update', function(){
+    colString = colorPicker.getHexString()
 
-    var colString = colorPicker.getHexString()
      console.log("picker clicked", colString)
 
+  })
+
+  // listen to the add button
+  $("#add").on("click", function addToPalette(){
     for (var i = 1; i < 7; i++){
       myswatch = "#swatch" + i
       mycolour = "#colour" + i
@@ -21,13 +26,13 @@ module.exports = function(){
       if (hexcol.toUpperCase() === '#FFFFFF'){
         document.querySelector(myswatch).style.background = colString
         document.querySelector(mycolour).style.background = colString
-
         break
        }
     }
   })
-  // listener
-  
+
+  // listen to the coloured buttons
+
   $('#colour1').click(function (e){
     console.log('click1', e.target.id)
     $('#siteTemplate').css("background-color", document.querySelector('#colour1').style.background)

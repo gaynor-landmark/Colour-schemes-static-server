@@ -51,6 +51,11 @@ h2{
   margin-right: 1%;
   /*background-color: red;*/
 }
+#add{
+  height: 20px;
+  width: 100px;
+  background-color: white;
+}
 .swatch{
   display:inline-block;
   height: 50px;
