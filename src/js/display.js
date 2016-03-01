@@ -17,7 +17,33 @@ module.exports = function(){
 
   })
   inspirePalette()
+///
+function addFromColourLoversPalette(target) {
+ var which = target.id
+  console.log(which, target.style.background)
+  clColString = target.style.background
+    var added = false
+    for (var i = 1; i< 6; i++) {
+      myswatch = "#" + which.slice(0, which.length -1)
+      mycolour = "#" + (which.slice(0, which.length -1)).replace("swatch", "colour")
+      console.log(myswatch, mycolour)
+      var hexcol = rgb2hex($(myswatch).css('background-color'))
+      console.log(myswatch, hexcol, typeof hexcol)
+      // console.log(myswatch, rgb2hex(document.querySelector(myswatch).style.background))
+      if (hexcol.toUpperCase() === '#FFFFFF'){
+        //change the part of the site example based on the option selected
+        document.querySelector(myswatch).style.background = clColString
+        document.querySelector(mycolour).style.background = clColString
+        added = true
+        break
+       }
+    }
+    if (!added) alert("The palette is full.")
 
+}
+
+
+///
 
   // listen to the add button
   function addToPalette(which){
@@ -78,6 +104,10 @@ module.exports = function(){
   for (var a = 1; a < 6; a++) {
     var myswatch = "#swatch" + a
     $(myswatch).click(function(e){addToPalette(e.target.id)})
+  }
+  for (var b = 1; b < 6; b++) {
+    var myswatch = "#swatch" + (b * 10)
+    $(myswatch).click(function(e){addFromColourLoversPalette(e.target)})
   }
 
 }
