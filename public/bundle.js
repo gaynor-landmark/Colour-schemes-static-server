@@ -32005,8 +32005,10 @@ function addFromColourLoversPalette(target) {
   clColString = target.style.background
     var added = false
     for (var i = 1; i< 6; i++) {
-      myswatch = "#" + which.slice(0, which.length -1)
-      mycolour = "#" + (which.slice(0, which.length -1)).replace("swatch", "colour")
+      // myswatch = "#" + which.slice(0, which.length -1)
+      // mycolour = "#" + (which.slice(0, which.length -1)).replace("swatch", "colour")
+      myswatch = "#swatch" + i
+      mycolour = "#colour" + i
       console.log(myswatch, mycolour)
       var hexcol = rgb2hex($(myswatch).css('background-color'))
       console.log(myswatch, hexcol, typeof hexcol)
@@ -32019,7 +32021,7 @@ function addFromColourLoversPalette(target) {
         break
        }
     }
-    if (!added) alert("The palette is full.")
+    if (!added) alert("The palette is full. Click on a colour to remove it before adding another.")
 
 }
 
