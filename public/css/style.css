@@ -84,7 +84,15 @@ h2{
   width: 72%;
   height: auto;
   margin: 1%;
+  float: right;
   /*background-color: blue;*/
+}
+.input{
+  height:30px;
+  width: 50%
+}
+#selectElement{
+  height: 30px;
 }
 /*colour buttons*/
 .colours{
@@ -94,11 +102,9 @@ h2{
   padding: 10px;
   margin: 10px;
   border-radius: 50%;
-  cursor: pointer
-
-}
-#colour1{
+  cursor: pointer;
   background: #FFFFFF;
+
 }
 
 

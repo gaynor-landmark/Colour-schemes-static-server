@@ -1,3 +1,12 @@
 {
-  "testData": "test string AAAAAA"
+  "palettes": [
+    {"name": 'test1',
+     "colours": ['#ffffff','#ffffff','#ffffff','#ffffff','#ffffff']},
+
+     {"name": 'test2',
+      "colours": ['#ffffff','#ffffff','#ffffff','#ffffff','#ffffff']}
+
+
+
+  ]
 }
