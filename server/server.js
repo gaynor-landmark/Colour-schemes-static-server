@@ -13,6 +13,16 @@ app.use(cors({
   origin: 'http://localhost:9965'
 }))
 
+var knex = require('knex')({
+  client: 'sqlite3',
+  connection: {
+    filename: '../db/pets.sqlite'
+  },
+  useNullAsDefault: true
+})
+
+
+
 app.set('port', 3000)
 
 //app.use(express.static(path.join(__dirname,'public')))
