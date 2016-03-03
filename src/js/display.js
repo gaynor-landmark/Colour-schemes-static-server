@@ -3,6 +3,7 @@ var ColorPicker = require('simple-color-picker');
 var rgb2hex = require('./rgb2hex.js')
 var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
+var savePalette = require('./savePalette.js')
 var colourlovers = require('colourlovers')
 
 module.exports = function(){
@@ -79,6 +80,16 @@ function addFromColourLoversPalette(target) {
    }
  }
 
+ function detailsToSave(){
+   var details = {}
+
+   var pname = $("#palettename").val()
+   console.log('in detailsToSave', pname)
+   if ($("#palettename").val() !== "") {
+     details.colours = "aaaaaaa"
+   }
+   return details
+ }
 
 
   $('#colour1').click(function (e){
@@ -96,12 +107,23 @@ function addFromColourLoversPalette(target) {
   $('#colour5').click(function (e){
     updateElement(document.querySelector('#colour5').style.background)
   })
-  $('#colour6').click(function (e){
-    updateElement(document.querySelector('#colour6').style.background)
-  })
+
 
   $('#clearButton').click(function(e){clearPalette()})
-  $('#saveButton').click(function(e){savePalette(paletteName)})
+
+  $('#saveButton').click(function(e){
+    var paletteJson = {}
+    paletteJson.Name = $('#palettename').val()
+    coloursString = ""
+    for (var c = 1; c < 6; c++){
+      mycolour = "#colour" + c
+      coloursString += (document.querySelector(mycolour).style.background) + "|"
+    }
+
+    paletteJson.Colours = coloursString
+    console.log(paletteJson)
+    savePalette(paletteJson)
+  })
   $('#randomButton').click(function(e){inspirePalette()})
   for (var a = 1; a < 6; a++) {
     var myswatch = "#swatch" + a

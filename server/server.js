@@ -16,14 +16,14 @@ app.use(cors({
 var knex = require('knex')({
   client: 'sqlite3',
   connection: {
-    filename: '../db/colourschemes.sqlite'
+    filename: './db/colourschemes.sqlite'
   },
   useNullAsDefault: true
 })
 
 
 app.post('/palettes', function(req, res) {
-  var newId = = uuid.v4()
+//  var newId = = uuid.v4()
   knex('palettes').insert({
         PaletteID: newId ,
         PaletteName: req.body.name,
