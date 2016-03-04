@@ -14,7 +14,7 @@ var dropSqlPalettes = 'DROP TABLE IF EXISTS palettes;'
 
 var createSqlUsers = [
   'CREATE TABLE users (',
-	'UserID INTEGER PRIMARY KEY ASC,',
+	'UserID VARCHAR(255) PRIMARY KEY ASC,',
 	'LastName VARCHER(255),',
 	'FirstName VARCHER(255),',
 	'Email VARCHAR(255),',
@@ -24,10 +24,14 @@ var createSqlUsers = [
 
 var createSqlPalettes = [
   'CREATE TABLE palettes (',
-	'PaletteID INTEGER PRIMARY KEY ASC,',
-	'UserID INTEGER,',
+	'PaletteID VARCHAR(255) PRIMARY KEY ASC,',
+	'UserID VARCHAR(255),',
 	'PaletteName VARCHER(255),',
-  'Colours VARCHER(255)',
+  'Colour1 VARCHER(255),',
+  'Colour2 VARCHER(255),',
+  'Colour3 VARCHER(255),',
+  'Colour4 VARCHER(255),',
+  'Colour5 VARCHER(255)',
   ');'
 ].join(' ')
 

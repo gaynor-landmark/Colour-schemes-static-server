@@ -30,11 +30,11 @@
       </div>
       <div id="buttonPanel">
         <div id="pickerButtonPanel">
-      
+
            <button id="clearButton" class='button'>Clear Palette</button>
         </div>
         <div id="swatchButtonPanel">
-           Palette Name: <input type="text" name="palettename" class='input'>
+           Palette Name: <input type="text" id="palettename"  class='input'>
            <button id="saveButton" class='button'>Save</button>
         </div>
       </div>
@@ -44,7 +44,9 @@
           <select id='selectElement'>
             <option value="BCK">Background</option>
             <option value="FNT">Font Colour</option>
-            <option value="ART">Article Background</option>
+            <option value="ART">Primary Text/Article Background</option>
+            <option value="SEC">Secondary Text Background</option>
+            <option value="FOO">Footer Background</option>
           </select>
         </h2>
 
@@ -86,6 +88,8 @@
           <h2>Hymenaeos Amet Montes Lacus</h2>
           <p>Euismod nec habitasse natoque dolor suspendisse morbi risus hendrerit viverra sollicitudin odio ultricies, non suspendisse dui cursus taciti augue. Congue nisl etiam nibh volutpat arcu ridiculus integer. Tortor adipiscing <em>scelerisque</em> pulvinar ornare elementum ullamcorper turpis ridiculus.</p>
           <p>Turpis tempor turpis sem hymenaeos. Euismod. Varius morbi nonummy lobortis sit <em>diam</em> inceptos suscipit <strong>facilisi</strong> taciti aenean. Convallis lacinia ipsum. Molestie. <strong>Nulla</strong> nisi conubia eleifend mauris vitae commodo faucibus hendrerit nulla <strong>pretium</strong> ante. Sem eu nisi turpis mi mauris sollicitudin laoreet curabitur morbi ut dui, interdum.</p>
+        </div>
+        <div id="secondaryText">
           <h2>Aenean Sed Pede</h2>
           <p>Fermentum turpis dictumst hymenaeos nullam. Litora rhoncus facilisis phasellus hendrerit bibendum cras odio, vehicula nulla fusce nostra fringilla.</p>
         </div>
@@ -101,9 +105,10 @@
 
     </div>
 
-    <!-- <footer role="contentinfo">
+    <footer role="contentinfo">
       <p>Copyright 2016</p>
-    </footer> -->
+      <p>Fermentum turpis dictumst hymenaeos nullam. Litora rhoncus</p>
+    </footer>
     <!-- <script src='js/display.js'></script> -->
   </body>
 </html>

@@ -31984,6 +31984,7 @@ var ColorPicker = require('simple-color-picker');
 var rgb2hex = require('./rgb2hex.js')
 var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
+var savePalette = require('./savePalette.js')
 var colourlovers = require('colourlovers')
 
 module.exports = function(){
@@ -32060,6 +32061,14 @@ function addFromColourLoversPalette(target) {
    }
  }
 
+ function deatilsToSave(){
+   var details = {}
+   console.log('in detailsToSave')
+   if ($("#palettename").val() !== "") {
+     details.colours = "aaaaaaa"
+   }
+   return details
+ }
 
 
   $('#colour1').click(function (e){
@@ -32082,7 +32091,16 @@ function addFromColourLoversPalette(target) {
   })
 
   $('#clearButton').click(function(e){clearPalette()})
-  $('#saveButton').click(function(e){savePalette(paletteName)})
+
+  $('#saveButton').click(function(e){
+    var paletteJson = {}
+    console.log($('#palettename').val())
+  //  console.log(document.querySelector('#palettename').value)
+    paletteJson.Name = $('#palettename').val()
+    paletteJson.Colours = "string of hex"
+    console.log(paletteJson)
+    savePalette(detailsToSave())
+  })
   $('#randomButton').click(function(e){inspirePalette()})
   for (var a = 1; a < 6; a++) {
     var myswatch = "#swatch" + a
@@ -32106,7 +32124,7 @@ $.getJSON('http://www.colourlovers.com/api/palettes/top?jsonCallback=?&numResult
   });
 }
 
-},{"./clearPalette.js":102,"./hex2rgb.js":104,"./rgb2hex.js":105,"colourlovers":6,"jquery":19,"simple-color-picker":73}],104:[function(require,module,exports){
+},{"./clearPalette.js":102,"./hex2rgb.js":104,"./rgb2hex.js":105,"./savePalette.js":106,"colourlovers":6,"jquery":19,"simple-color-picker":73}],104:[function(require,module,exports){
 // convert a hex colour to rgb
 
 module.exports = function (hex) {
@@ -32130,4 +32148,16 @@ module.exports =  function (orig){
   ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig;
 }
 
-},{}]},{},[101]);
+},{}],106:[function(require,module,exports){
+var $ = require('jquery')
+// save the palette by name
+module.exports = function (palette){
+  palette = {}
+  console.log("in save", palette)
+  var paletteObj = {}
+//  paletteObj[col1] = $('#palettename').
+
+
+}
+
+},{"jquery":19}]},{},[101]);
