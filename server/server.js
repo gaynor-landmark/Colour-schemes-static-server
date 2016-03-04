@@ -3,6 +3,7 @@ var path = require('path')
 var cors = require('cors')
 var passport = require('passport')
 var Strategy = require('passport-instagram')
+var uuid = require('uuid')
 
 //dotenv.load()
 // passport.use(new Strategy({
@@ -26,7 +27,7 @@ var app = express()
 app.use(bodyParser.json());
 
 app.use(cors({
-  origin: 'http://localhost:9965'
+  origin: 'http://localhost:9966'
 }))
 
 var knex = require('knex')({
@@ -39,12 +40,19 @@ var knex = require('knex')({
 
 
 app.post('/palettes', function(req, res) {
-//  var newId = = uuid.v4()
+var newId = uuid.v4()
+console.log("req body", req.body)
+var colours = req.body.Colours.split('|')
+console.log(req.body, newId)
   knex('palettes').insert({
         PaletteID: newId ,
-        PaletteName: req.body.name,
-        UserID: req.body.userId,
-        Colours: req.body.colours
+        PaletteName: req.body.Name,
+        // UserID: req.body.userId,
+        Colour1: colours[0],
+        Colour2: colours[1],
+        Colour3: colours[2],
+        Colour4: colours[3],
+        Colour5: colours[4]
       }).then(function(resp) {
         res.send('Saved')
       })
@@ -56,7 +64,11 @@ app.get('/palettes', function(req, res) {
         PaletteID: newId ,
         PaletteName: req.body.name,
         UserID: req.body.userId,
-        Colours: req.body.colours
+        Colour1: req.body.colours[0],
+        Colour2: req.body.colours[1],
+        Colour3: req.body.colours[2],
+        Colour4: req.body.colours[3],
+        Colour5: req.body.colours[4]
       }).then(function(resp) {
         res.send('Saved')
       })
