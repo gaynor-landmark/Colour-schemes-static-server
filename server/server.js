@@ -1,6 +1,22 @@
 var express = require('express')
 var path = require('path')
 var cors = require('cors')
+var passport = require('passport')
+var Strategy = require('passport-instagram')
+
+//dotenv.load()
+// passport.use(new Strategy({
+//     clientID: process.env.CLIENT_ID,
+//     clientSecret: process.env.CLIENT_SECRET,
+//     callbackURL: 'http://localhost:3000/login/instagram/return'
+//   },
+//   function(accessToken, refreshToken, profile, cb) {
+//     console.log("in strategy function")
+//     return cb(null, profile);
+//   }));
+
+
+
 
 var $ = require('jquery')
 var bodyParser = require('body-parser')
@@ -34,6 +50,17 @@ app.post('/palettes', function(req, res) {
       })
 })
 
+app.get('/palettes', function(req, res) {
+//  var newId = = uuid.v4()
+  knex('palettes').select('name', req.body)({
+        PaletteID: newId ,
+        PaletteName: req.body.name,
+        UserID: req.body.userId,
+        Colours: req.body.colours
+      }).then(function(resp) {
+        res.send('Saved')
+      })
+})
 
 app.set('port', 3000)
 
