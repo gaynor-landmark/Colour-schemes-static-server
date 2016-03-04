@@ -77,6 +77,10 @@ function addFromColourLoversPalette(target) {
      $('#siteText').css("background-color", col)
    } else if ($("#selectElement").val() === "FNT") {
      $('body').css("color", col)
+   } else if ($("#selectElement").val() === "FOO") {
+     $('footer').css("background-color", col)
+   } else if ($("#selectElement").val() === "SEC") {
+     $('#secondaryText').css("background-color", col)
    }
  }
 

@@ -133,7 +133,7 @@ h2{
   padding: 20px;
 }
 #secondaryText{
-  background: red;
+  /*background: orange;*/
   padding: 20px;
 }
 #twinImages{
@@ -152,8 +152,9 @@ img{
 
 }
 footer{
-  padding: 3px;
-  background-color: white;
+  padding: 2%;
+  padding-left: 6%;
+  /*background-color: pink;*/
 }
 /*Color-picker*/
 
