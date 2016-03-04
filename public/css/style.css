@@ -132,6 +132,10 @@ h2{
   /*background: red;*/
   padding: 20px;
 }
+#secondaryText{
+  background: red;
+  padding: 20px;
+}
 #twinImages{
   /*display:inline-block;*/
   width: 100%
@@ -147,7 +151,10 @@ img{
   /*text-align: center*/
 
 }
-
+footer{
+  padding: 3px;
+  background-color: white;
+}
 /*Color-picker*/
 
 .Scp {
