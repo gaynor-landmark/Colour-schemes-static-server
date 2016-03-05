@@ -41,9 +41,7 @@ var knex = require('knex')({
 
 app.post('/palettes', function(req, res) {
 var newId = uuid.v4()
-console.log("req body", req.body)
 var colours = req.body.Colours.split('|')
-console.log(req.body, newId)
   knex('palettes').insert({
         PaletteID: newId ,
         PaletteName: req.body.Name,
@@ -59,24 +57,13 @@ console.log(req.body, newId)
 })
 
 app.get('/palettes', function(req, res) {
-//  var newId = = uuid.v4()
-  knex('palettes').select('name', req.body)({
-        PaletteID: newId ,
-        PaletteName: req.body.name,
-        UserID: req.body.userId,
-        Colour1: req.body.colours[0],
-        Colour2: req.body.colours[1],
-        Colour3: req.body.colours[2],
-        Colour4: req.body.colours[3],
-        Colour5: req.body.colours[4]
-      }).then(function(resp) {
-        res.send('Saved')
-      })
+  knex('palettes').select('*')
+  .then(function(resp) {
+        res.send(resp)
+  })
 })
 
 app.set('port', 3000)
-
-//app.use(express.static(path.join(__dirname,'public')))
 
 var server = app.listen(app.get('port'), function(){
   var port = server.address().port

@@ -5,6 +5,7 @@ var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
 var savePalette = require('./savePalette.js')
 var colourlovers = require('colourlovers')
+var appendPalettes = require('./appendPalettes.js')
 
 module.exports = function(){
   //create the colour picker
@@ -13,25 +14,18 @@ module.exports = function(){
   var colString = colorPicker.getHexString()
   colorPicker.on('update', function(){
     colString = colorPicker.getHexString()
-     console.log("picker clicked", colString)
   })
   inspirePalette()
   setSwatchesToWhite()
-///
+
 function addFromColourLoversPalette(target) {
- var which = target.id
-  console.log(which, target.style.background)
+  var which = target.id
   clColString = target.style.background
     var added = false
     for (var i = 1; i< 6; i++) {
-      // myswatch = "#" + which.slice(0, which.length -1)
-      // mycolour = "#" + (which.slice(0, which.length -1)).replace("swatch", "colour")
       myswatch = "#swatch" + i
       mycolour = "#colour" + i
-      console.log(myswatch, mycolour)
       var hexcol = rgb2hex($(myswatch).css('background-color'))
-      console.log(myswatch, hexcol, typeof hexcol)
-      // console.log(myswatch, rgb2hex(document.querySelector(myswatch).style.background))
       if (hexcol.toUpperCase() === '#FFFFFF'){
         //change the part of the site example based on the option selected
         document.querySelector(myswatch).style.background = clColString
@@ -145,7 +139,8 @@ function addFromColourLoversPalette(target) {
 
   $('#myPalettesButton').click(function(){
     console.log("click")
-    window.location = './myPalettes.html' + paletteQueryString()
+    appendPalettes()
+    // window.location = './myPalettes.html' + paletteQueryString()
   })
 }
 

@@ -54,11 +54,29 @@
           <button id="randomButton" class='button'>Inspire Me</button>
         </div>
 
-          <!-- <h2>Site Example</h2> -->
           <button id="tryButton" class='button' >Try It Out</button>
           <button id="myPalettesButton" class='button' >My Palettes</button>
+          <h2>My Palettes</h2>
+          <div id='palettelist'></div>
 
-        
+            <ul>
+              <script id="myPalettes-Template" type="x-handlebars-template">​
+
+                {{#each this}}​
+                  <li>
+                    <div id="swatch-container">
+                       <div id="swatch1" class="swatch" style='background-color: {{Colour1}};'></div>
+                       <div id="swatch2" class="swatch" style='background-color: {{Colour2}};'></div>
+                       <div id="swatch3" class="swatch" style='background-color: {{Colour3}};'></div>
+                       <div id="swatch4" class="swatch" style='background-color: {{Colour4}};'></div>
+                       <div id="swatch5" class="swatch" style='background-color: {{Colour5}};'></div>
+                    </div>
+                  </li>
+                {{/each}}
+          ​    </script> 
+            <//ul>
+          </div>
+
       </div>
     </div>
 
