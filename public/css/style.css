@@ -61,9 +61,18 @@ h2{
 
 .swatch{
   display:inline-block;
-  height: 70px;
+  height: 90px;
   width: 120px;
   background-color: white;
+
+}
+.swatchhex{
+  display:inline-block;
+  height: 20px;
+  width: 120px;
+  background-color: white;
+  padding-top: 1px;
+  text-align: center;
 
 }
 #buttonPanel{
