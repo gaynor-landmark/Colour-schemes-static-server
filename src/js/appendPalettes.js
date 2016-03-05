@@ -1,6 +1,15 @@
 var $ = require('jquery')
+var getRequest = require('./getRequest.js')
+var handlebars = require('handlebars')
 
-modules.exports = function appendPalettes(palettes){
-
-  console.log('in append palettes', palettes)
-} 
+module.exports = function() {
+  getRequest('http://localhost:3000/palettes', appendToList)
+  
+  function appendToList(data){
+    $('#palettelist').empty('')
+    var theTemplateScript = $("#myPalettes-Template").html()
+    //Compile the template​
+    var theTemplate = handlebars.compile(theTemplateScript);
+    $("#palettelist").append(theTemplate(data));
+  }
+}
