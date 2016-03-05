@@ -4,7 +4,10 @@ var cors = require('cors')
 var passport = require('passport')
 var Strategy = require('passport-instagram')
 var uuid = require('uuid')
+var $ = require('jquery')
+var bodyParser = require('body-parser')
 
+var routes = require('./routes.js')
 //dotenv.load()
 // passport.use(new Strategy({
 //     clientID: process.env.CLIENT_ID,
@@ -19,8 +22,7 @@ var uuid = require('uuid')
 
 
 
-var $ = require('jquery')
-var bodyParser = require('body-parser')
+
 
 var app = express()
 
@@ -30,46 +32,14 @@ app.use(cors({
   origin: 'http://localhost:9966'
 }))
 
-var knex = require('knex')({
-  client: 'sqlite3',
-  connection: {
-    filename: './db/colourschemes.sqlite'
-  },
-  useNullAsDefault: true
-})
 
 
-app.post('/palettes', function(req, res) {
-var newId = uuid.v4()
-var colours = req.body.Colours.split('|')
-  knex('palettes').insert({
-        PaletteID: newId ,
-        PaletteName: req.body.Name,
-        // UserID: req.body.userId,
-        Colour1: colours[0],
-        Colour2: colours[1],
-        Colour3: colours[2],
-        Colour4: colours[3],
-        Colour5: colours[4]
-      }).then(function(resp) {
-        res.send('Saved')
-      })
-})
+routes(app)
 
-app.get('/palettes', function(req, res) {
-  knex('palettes').select('*')
-  .then(function(resp) {
-        res.send(resp)
-  })
-})
 
 app.set('port', 3000)
 
 var server = app.listen(app.get('port'), function(){
   var port = server.address().port
   console.log('listening on ' + port)
-})
-
-app.get('/', function (req, res) {
-  res.send('Hello World!')
 })
