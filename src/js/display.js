@@ -13,11 +13,10 @@ module.exports = function(){
   var colString = colorPicker.getHexString()
   colorPicker.on('update', function(){
     colString = colorPicker.getHexString()
-
      console.log("picker clicked", colString)
-
   })
   inspirePalette()
+  setSwatchesToWhite()
 ///
 function addFromColourLoversPalette(target) {
  var which = target.id
@@ -36,7 +35,7 @@ function addFromColourLoversPalette(target) {
       if (hexcol.toUpperCase() === '#FFFFFF'){
         //change the part of the site example based on the option selected
         document.querySelector(myswatch).style.background = clColString
-        document.querySelector(mycolour).style.background = clColString
+  //      document.querySelector(mycolour).style.background = clColString
         added = true
         break
        }
@@ -45,8 +44,12 @@ function addFromColourLoversPalette(target) {
 
 }
 
-
-///
+ function setSwatchesToWhite(){
+   for (var i = 1; i< 6; i++) {
+     myswatch = "#swatch" + i
+     document.querySelector(myswatch).style.background = 'rgb(255,255,255)'
+   }
+ }
 
   // listen to the add button
   function addToPalette(which){
@@ -58,19 +61,20 @@ function addFromColourLoversPalette(target) {
       if (hexcol.toUpperCase() === '#FFFFFF'){
         //change the part of the site example based on the option selected
         document.querySelector(myswatch).style.background = colString
-        document.querySelector(mycolour).style.background = colString
+      //  document.querySelector(mycolour).style.background = colString
         added = true
        }
        else {
          //return to white
          document.querySelector(myswatch).style.background = '#FFFFFF'
-         document.querySelector(mycolour).style.background = '#FFFFFF'
+      //   document.querySelector(mycolour).style.background = '#FFFFFF'
        }
   }
 
 
 
  function updateElement(col){
+   console.log("update element")
    if ($("#selectElement").val() === "BCK") {
      $('#siteTemplate').css("background-color", col)
    } else if ($("#selectElement").val() === "ART") {
@@ -84,16 +88,6 @@ function addFromColourLoversPalette(target) {
    }
  }
 
- function detailsToSave(){
-   var details = {}
-
-   var pname = $("#palettename").val()
-   console.log('in detailsToSave', pname)
-   if ($("#palettename").val() !== "") {
-     details.colours = "aaaaaaa"
-   }
-   return details
- }
 
 
   $('#colour1').click(function (e){
@@ -120,14 +114,16 @@ function addFromColourLoversPalette(target) {
     paletteJson.Name = $('#palettename').val()
     coloursString = ""
     for (var c = 1; c < 6; c++){
-      mycolour = "#colour" + c
-      coloursString += (document.querySelector(mycolour).style.background) + "|"
+      var myswatch = "#swatch" + c
+      console.log("click", mycolour)
+      coloursString += (document.querySelector(myswatch).style.background) + "|"
     }
 
     paletteJson.Colours = coloursString
     console.log(paletteJson)
     savePalette(paletteJson)
   })
+
   $('#randomButton').click(function(e){inspirePalette()})
   for (var a = 1; a < 6; a++) {
     var myswatch = "#swatch" + a
@@ -137,10 +133,24 @@ function addFromColourLoversPalette(target) {
     var myswatch = "#swatch" + (b * 10)
     $(myswatch).click(function(e){addFromColourLoversPalette(e.target)})
   }
+  $('.createButton').click(function(){
+    console.log("return")
+    window.location = './index.html'
+  })
+  $('#tryButton').click(function(e){
+    console.log("intry")
+    var qString = createQueryString()
+    window.location = './tryItOut.html' + qString
+  })
 
+  $('#myPalettesButton').click(function(){
+    console.log("click")
+    window.location = './myPalettes.html' + paletteQueryString()
+  })
 }
 
 var inspirePalette = () => {
+  // console.log("inspire")
 // retrieve a set of the 50 top palettes from colourlovers.com
 $.getJSON('http://www.colourlovers.com/api/palettes/top?jsonCallback=?&numResults=50', function(data){
     var clPalette = data[Math.floor(Math.random()*50)];   // choose one randomly to display
@@ -149,4 +159,21 @@ $.getJSON('http://www.colourlovers.com/api/palettes/top?jsonCallback=?&numResult
       document.querySelector(myswatch).style.background =  hex2rgb(clPalette["colors"][c - 1])
     }
   });
+}
+
+function createQueryString(){
+  var qString = "?"
+  for (var i = 1; i< 6; i++) {
+    myswatch = "#swatch" + i
+    var hexcol = rgb2hex($(myswatch).css('background-color'))
+    console.log(myswatch, hexcol, typeof hexcol)
+
+    if (i === 5){
+      qString += hexcol
+    } else {
+      qString += hexcol + "|"
+    }
+   }
+   console.log(qString)
+  return qString
 }

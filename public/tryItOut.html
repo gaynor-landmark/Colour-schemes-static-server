@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <!-- <script src="./bundle.js" type="text/javascript" ></script> -->
+    <!-- <script src="../src/index.js" type="text/javascript"></script> -->
+    <title>Try It Out</title>
+  </head>
+  <body>
+    <header>
+      <h1>Try It Out!</h1>
+    </header>
+    <main>
+      <div id="selection" >
+        <h2>
+          Select a
+          <select id='selectElement'>
+            <option value="BCK">Background</option>
+            <option value="FNT">Font Colour</option>
+            <option value="ART">Primary Text/Article Background</option>
+            <option value="SEC">Secondary Text Background</option>
+            <option value="FOO">Footer Background</option>
+          </select>
+        </h2>
+
+        <div id='colourOptions'>
+          <button class='colours' id='colour1' onclick="updateElement(id)")></button>
+          <button class='colours' id='colour2' onclick="updateElement(id)"></button>
+          <button class='colours' id='colour3' onclick="updateElement(id)"></button>
+          <button class='colours' id='colour4' onclick="updateElement(id)"></button>
+          <button class='colours' id='colour5' onclick="updateElement(id)"></button>
+
+        </div>
+        <button class='button' onclick='returnToCreate()'>Create</button>
+      <div id="siteTemplate">
+        <div id="fullPanel">
+            <!-- This fullPanel has a margin of 5% -->
+          <div id='hero' >
+            <img src="./images/rose_opt.jpg">
+          </div>
+          <div id="siteText">
+            <h1>Inceptos</h1>
+            <h2>Hymenaeos Amet Montes Lacus</h2>
+            <p>Euismod nec habitasse natoque dolor suspendisse morbi risus hendrerit viverra sollicitudin odio ultricies, non suspendisse dui cursus taciti augue. Congue nisl etiam nibh volutpat arcu ridiculus integer. Tortor adipiscing <em>scelerisque</em> pulvinar ornare elementum ullamcorper turpis ridiculus.</p>
+            <p>Turpis tempor turpis sem hymenaeos. Euismod. Varius morbi nonummy lobortis sit <em>diam</em> inceptos suscipit <strong>facilisi</strong> taciti aenean. Convallis lacinia ipsum. Molestie. <strong>Nulla</strong> nisi conubia eleifend mauris vitae commodo faucibus hendrerit nulla <strong>pretium</strong> ante. Sem eu nisi turpis mi mauris sollicitudin laoreet curabitur morbi ut dui, interdum.</p>
+          </div>
+          <div id="secondaryText">
+            <h2>Aenean Sed Pede</h2>
+            <p>Fermentum turpis dictumst hymenaeos nullam. Litora rhoncus facilisis phasellus hendrerit bibendum cras odio, vehicula nulla fusce nostra fringilla.</p>
+          </div>
+          <div id='twinImages'>
+            <div class="smallImage">
+              <img src="./images/camera-541213_1920.jpg">
+            </div>
+            <div class="smallImage">
+              <img src="./images/typewriter-1156824_1920.jpg"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+    <footer role="contentinfo">
+      <p>Copyright 2016</p>
+    </footer>
+    <script>
+      console.log (window.location.href)
+      //set the colours of the buttons
+      var coloursArr = window.location.href.slice(window.location.href.indexOf('?') + 1).split('|');
+
+    for(var i = 0; i < coloursArr.length; i++)
+    {
+      var mycolour = '#colour' + ( i + 1)
+      console.log(mycolour)
+        document.querySelector(mycolour).style.background = coloursArr[i]
+      //  document.querySelector(mycolour).addEventListener("click", updateElement(mycolour));
+    console.log("complete")
+  }
+    function returnToCreate(){
+      window.location = './index.html'
+    }
+   console.log("update element")
+    function updateElement(id){
+      var mycolour = '#' + id
+      var x = document.querySelector("#selectElement").value
+      console.log(x)
+      switch (x) {
+        case 'BCK':
+          document.querySelector('#siteTemplate').style.background = document.querySelector(mycolour).style.background
+          break;
+        case 'ART':
+          document.querySelector('#siteText').style.background = document.querySelector(mycolour).style.background
+          break;
+        case 'FNT':
+          document.querySelector('body').style.color = document.querySelector(mycolour).style.background
+          break;
+        case 'FOO':
+          document.querySelector('footer').style.background = document.querySelector(mycolour).style.background
+          break;
+        case 'SEC':
+          document.querySelector('#secondaryText').style.background = document.querySelector(mycolour).style.background
+          break;
+        }
+   }
+    console.log("###")
+    </script>
+  </body>
+</html>
