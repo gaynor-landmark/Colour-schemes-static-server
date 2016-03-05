@@ -23,7 +23,7 @@
   "dependencies": {
     "babel": "^6.5.2",
     "babel-cli": "^6.6.0",
-    "body-parser": "^1.15.0",
+    "bootstrap": "^3.3.6",
     "budo": "^8.0.4",
     "cors": "^2.7.1",
     "dotenv": "^2.0.0",
