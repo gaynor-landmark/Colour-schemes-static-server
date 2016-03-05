@@ -1,10 +1,12 @@
 var $ = require('jquery')
-var ColorPicker = require('simple-color-picker');
+var colourlovers = require('colourlovers')
+var ColorPicker = require('simple-color-picker')
+
 var rgb2hex = require('./rgb2hex.js')
 var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
 var savePalette = require('./savePalette.js')
-var colourlovers = require('colourlovers')
+
 var appendPalettes = require('./appendPalettes.js')
 
 module.exports = function(){
@@ -17,7 +19,8 @@ module.exports = function(){
   })
   inspirePalette()
   clearPalette()
-  // setSwatchesToWhite()
+
+
 
 function addFromColourLoversPalette(target) {
   var which = target.id
@@ -49,7 +52,7 @@ function addFromColourLoversPalette(target) {
  //   }
  // }
 
-// add the picker colour to the palette
+// add the picked colour to the palette
   function addToPalette(which){
     console.log("add to pal")
       var myswatch = "#" + which

@@ -1,6 +1,6 @@
-//Utility Functions
+//Utility Function
 
-// 'borrowed' from stackoverflow
+// 'borrowed' and edited code
 module.exports =  function (orig){
   var rgb = orig.replace(/\s/g,'').match(/^rgba?\((\d+),(\d+),(\d+)/i);
  return ((rgb && rgb.length === 4) ? "#" +
