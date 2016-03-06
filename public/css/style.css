@@ -3,13 +3,21 @@ body{
   height: auto;
   width: auto;
   background: Gainsboro;
-
+  font-size: 200%
+  font-family: monospace;
 }
 #topPanel{
   width: auto;
   background: LightGray;
   padding: 2.5% 5% 0%;
-
+ /*background-color: pink;*/
+}
+#pickerPanel{
+  width: auto;
+  height: auto;
+  background: LightGray;
+  padding: 2.5% 5% 0%;
+ /*background-color: pink;*/
 }
 header{
   text-align: center;
@@ -21,8 +29,20 @@ h1{
 }
 .button{
   background-color: white;
-  width: 175px;
-  height: 35px;
+  width: auto;
+  height: auto;
+  font-family: monospace;
+  font-size: 120%;
+  border-radius: 5%;
+  padding-left: 1%;
+  padding-right: 1%;
+  padding-top: .5%;
+  padding-bottom: .5%;
+}
+li{
+  height: 33px;
+  font-family: monospace;
+  font-size: 150%;
 }
 #selection{
   width: auto;
@@ -43,19 +63,22 @@ h2{
   height: auto;
   margin: 0.1%;
   /*background-color: orange;*/
+  /*align-vertical: true;*/
 }
 #swatch-container{
   display: inline-block;
   width: 72%;
   height: auto;
-  margin: 1%;
+  margin: 2%;
   /*background-color: blue;*/
 }
+
 #picker{
-  display: inline-block;
-  width: 22%;
+  display: block;
+  width: 100%;
   height: auto; /*50px;*/
-  margin-right: 1%;
+  margin-left:  3%;
+  margin-top: 3%;
   /*background-color: red;*/
 }
 
@@ -98,7 +121,8 @@ h2{
 }
 .input{
   height:30px;
-  width: 50%
+  width: 50%;
+  margin: 2%;
 }
 #selectElement{
   height: 30px;

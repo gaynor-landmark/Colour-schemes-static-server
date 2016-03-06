@@ -155,6 +155,25 @@ function addFromColourLoversPalette(target) {
     appendPalettes()
     // window.location = './myPalettes.html' + paletteQueryString()
   })
+
+  $('#signinBtn').click(function(){
+    console.log('click signin')
+  })
+  $('#signUpBtn').click(function(){
+    console.log('click signup')
+  })
+
+
+}
+
+function welcome(name){
+
+  var theTemplateScript = $("#myUser-Template").html()
+  //Compile the template​
+  var theTemplate = handlebars.compile(theTemplateScript)
+  console.log("data", name)
+  $("#palettelist").append(theTemplate({name: name}))
+
 }
 
 const inspirePalette = () => {

@@ -6,7 +6,7 @@
     "test": "node test/*.js tap-spec",
     "server": "nodemon ./server/server.js",
     "build": "watchify ./src/index.js -o ./public/bundle.js --watch",
-    "start": "budo ./src/index.js -d ./public --serve bundle.js --live",
+    "start": "budo ./src/index.js -d ./public/index.html --serve bundle.js --live -dv",
     "createDB": "node ./db/createDB.js"
   },
   "repository": {
@@ -25,6 +25,8 @@
     "babel-cli": "^6.6.0",
     "body-parser": "^1.15.0",
     "budo": "^8.0.4",
+    "colourlovers": "^0.1.1",
+    "connect-ensure-login": "^0.1.1",
     "cors": "^2.7.1",
     "dotenv": "^2.0.0",
     "express": "^4.13.4",
@@ -32,7 +34,7 @@
     "jquery": "^2.2.0",
     "knex": "^0.10.0",
     "passport": "^0.3.2",
-    "passport-instagram": "^1.0.0",
+    "passport-github": "^1.1.0",
     "path": "^0.12.7",
     "simple-color-picker": "0.0.9",
     "sqlite3": "^3.1.1",
