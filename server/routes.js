@@ -41,18 +41,19 @@ module.exports = function routes(app){
   })
 
   app.get('/palettes', function(req, res) {
-    console.log(user)
-    knex('palettes').where('UserID', passport.session.id).select('*')
-    .then(function(resp) {
-      console.log("in GET", resp)
+    console.log("user id",  passport.session.id)
+    if (passport.session.id) {
+      knex('palettes').where('UserID', passport.session.id).select('*')
+      .then(function(resp) {
+         console.log("here")
           res.send(resp)
-    })
+      })
+    }
+
   })
 
 
   app.get('/', function(req, res){
-    console.log("returning with user", req.user)
-    console.log("returning with user from session", passport.session.id)
     res.redirect('/index.html', { user: req.user });
   })
 
@@ -60,7 +61,13 @@ module.exports = function routes(app){
      function(req, res){
      console.log("get user",  passport.session.id)
      res.send(passport.session.id);
-  });
+  })
+
+ //  app.post('/user',
+ //    function(req, res){
+ //    console.log("get user",  passport.session.id)
+ //    res.send("saved");
+ // })
 
   app.get('/auth/github',
     passport.authenticate('github'))
@@ -71,20 +78,27 @@ module.exports = function routes(app){
       console.log("in /login/github/callback after authenticate", req.user.id, req.user.displayName)
       passport.session.id = req.user.id
       passport.session.displayName = req.user.displayName
-      res.redirect('/');
+      // now save the user to the database
+      console.log("about to save", req.user)
+      // first check if  the  user already exists in the database
+      knex('users').where('UserID', req.user.id).select('*')
+      .then(function (resp1){
+        console.log(resp1)
+        if (!resp1[0]){
+          // save the display name in the lastname field
+          knex('users').insert({UserID: req.user.id, LastName:req.user.displayName})
+          .then(function(resp2){
+            console.log('after save')
+          })
+        }
+        res.redirect('/')
+      }
+      )
     });
-
-
-
-// app.get('/profile',
-//   require('connect-ensure-login').ensureLoggedIn(),
-//   function(req, res){
-//     console.log("in /profile")
-//     res.render('profile', { user: req.user });
-//   });
 
   app.get('/logout', function(req, res){
     console.log("in logout")
+    passport.session.id = ""
     req.logout();
     res.redirect('/');
   });
