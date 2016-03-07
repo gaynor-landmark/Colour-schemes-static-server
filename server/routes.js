@@ -42,7 +42,7 @@ module.exports = function routes(app){
 
   app.get('/palettes', function(req, res) {
     console.log(user)
-    knex('palettes').where('UserID', user.id).select('*')
+    knex('palettes').where('UserID', passport.session.id).select('*')
     .then(function(resp) {
       console.log("in GET", resp)
           res.send(resp)
@@ -53,29 +53,24 @@ module.exports = function routes(app){
   app.get('/', function(req, res){
     console.log("returning with user", req.user)
     console.log("returning with user from session", passport.session.id)
-    res.redirect('/auth/github', { user: req.user });
+    res.redirect('/index.html', { user: req.user });
   })
 
-  // app.get('/login',
-  //   function(req, res){
-  //     console.log("in /login")
-  //     res.redirect('login.html');
-  //   });
+   app.get('/user',
+     function(req, res){
+     console.log("get user",  passport.session.id)
+     res.send(passport.session.id);
+  });
 
   app.get('/auth/github',
     passport.authenticate('github'))
 
   app.get('/auth/github/return',
-    passport.authenticate('github', { failureRedirect: '/login' }),
+    passport.authenticate('github', { failureRedirect: '/login.html' }),
     function(req, res) {
       console.log("in /login/github/callback after authenticate", req.user.id, req.user.displayName)
       passport.session.id = req.user.id
       passport.session.displayName = req.user.displayName
-
-      user['id'] = req.user.id
-      console.log(user)
-    //  passport.session.name = req.user.displayname
-    //  welcome(req.user.displayname)
       res.redirect('/');
     });
 
