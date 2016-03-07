@@ -24,7 +24,7 @@ module.exports = function routes(app){
 
   app.post('/palettes', function(req, res) {
   var newId = uuid.v4()
-  console.log(user.id) 
+  console.log(user.id)
   var colours = req.body.Colours.split('|')
     knex('palettes').insert({
           PaletteID: newId ,
@@ -52,6 +52,7 @@ module.exports = function routes(app){
 
   app.get('/', function(req, res){
     console.log("returning with user", req.user)
+    console.log("returning with user from session", passport.session.id)
     res.redirect('/auth/github', { user: req.user });
   })
 
@@ -68,6 +69,9 @@ module.exports = function routes(app){
     passport.authenticate('github', { failureRedirect: '/login' }),
     function(req, res) {
       console.log("in /login/github/callback after authenticate", req.user.id, req.user.displayName)
+      passport.session.id = req.user.id
+      passport.session.displayName = req.user.displayName
+
       user['id'] = req.user.id
       console.log(user)
     //  passport.session.name = req.user.displayname

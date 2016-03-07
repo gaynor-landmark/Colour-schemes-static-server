@@ -8,6 +8,7 @@ var $ = require('jquery')
 var bodyParser = require('body-parser')
 var dotenv = require('dotenv')
 
+
 var routes = require('./routes.js')
 
 dotenv.load()
@@ -37,7 +38,7 @@ passport.deserializeUser(function(obj, cb) {
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 
 
 

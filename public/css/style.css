@@ -7,12 +7,15 @@ body{
   font-family: monospace;
 
 }
-#topPanel{
+.topPanel{
   width: auto;
   background: #F9F9F9 url("../images/colored-pencils.jpg") no-repeat right top;
   padding: 2.5% 5% 0%;
   background:
  /*background-color: pink;*/
+}
+#picPanel{
+  height: 2500px;
 }
 #pickerPanel{
   width: auto;
