@@ -41,18 +41,19 @@ module.exports = function routes(app){
   })
 
   app.get('/palettes', function(req, res) {
-    console.log(user)
-    knex('palettes').where('UserID', passport.session.id).select('*')
-    .then(function(resp) {
-      console.log("in GET", resp)
+    console.log("user id",  passport.session.id)
+    if (passport.session.id) {
+      knex('palettes').where('UserID', passport.session.id).select('*')
+      .then(function(resp) {
+         console.log("here")
           res.send(resp)
-    })
+      })
+    }
+
   })
 
 
   app.get('/', function(req, res){
-    console.log("returning with user", req.user)
-    console.log("returning with user from session", passport.session.id)
     res.redirect('/index.html', { user: req.user });
   })
 
@@ -95,17 +96,9 @@ module.exports = function routes(app){
       )
     });
 
-
-
-// app.get('/profile',
-//   require('connect-ensure-login').ensureLoggedIn(),
-//   function(req, res){
-//     console.log("in /profile")
-//     res.render('profile', { user: req.user });
-//   });
-
   app.get('/logout', function(req, res){
     console.log("in logout")
+    passport.session.id = ""
     req.logout();
     res.redirect('/');
   });
