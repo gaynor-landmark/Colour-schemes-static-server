@@ -10,54 +10,54 @@
     <title>Colour Scheme</title>
   </head>
   <body>
-    <div id="topPanel">
+    <div class="topPanel">
       <header>
         <h1>Custom Colours</h1>
       </header>
       <ul>
-        <li><a href="/signin.html">Sign in</a></li>
-        <li><a href="/signup.html">Sign up</a></li>
+        <!-- <li><a href="/auth/github">Login with Github</a></li> -->
+        <li><a href="/login.html">Login</a></li>
+        <li><a href="/logout">Logout</a></li>
       </ul>
-      <div id="palette" >
-        <div id="swatch-container">
-          <div id="swatch1" class="swatch">
-            <div id="hex1" class="swatchhex"></div>
-          </div>
-          <div id="swatch2" class="swatch">
-            <div id="hex2" class="swatchhex"></div>
-          </div>
-          <div id="swatch3" class="swatch">
-             <div id="hex3" class="swatchhex"></div>
-          </div>
-          <div id="swatch4" class="swatch">
-            <div id="hex4" class="swatchhex"></div>
-          </div>
-          <div id="swatch5" class="swatch">
-             <div id="hex5" class="swatchhex"></div>
-          </div>
-          <button id="clearButton" class='button'>Clear Palette</button>
-          <button id="tryButton" class='button' >Try It Out</button>
-        </div>
-
-        <div id="buttonPanel">
-          <div id="pickerButtonPanel">
-
-
-          </div>
-          <div id="swatchButtonPanel">
-
-             Palette Name: <input type="text" id="palettename"  class='input'>
-             <button id="saveButton" class='button'>Save</button>
-
-          </div>
-        </div>
-
+      <div id='welcome'>
+        <script id="myUser-Template" type="x-handlebars-template">​
+        Welcome {{user}}
+    ​    </script> 
       </div>
+      <div id='custom'>
+        <div id="palette" >
+          <div id="swatch-container">
+            <div id="swatch1" class="swatch">
+              <div id="hex1" class="swatchhex"></div>
+            </div>
+            <div id="swatch2" class="swatch">
+              <div id="hex2" class="swatchhex"></div>
+            </div>
+            <div id="swatch3" class="swatch">
+               <div id="hex3" class="swatchhex"></div>
+            </div>
+            <div id="swatch4" class="swatch">
+              <div id="hex4" class="swatchhex"></div>
+            </div>
+            <div id="swatch5" class="swatch">
+               <div id="hex5" class="swatchhex"></div>
+            </div>
+            <button id="clearButton" class='button'>Clear Palette</button>
+            <button id="tryButton" class='button' >Try It Out</button>
+            <!-- <div id="swatchButtonPanel"> -->
+               <input type="text" id="palettename"  class='input'>
+               <button id="saveButton" class='button'>Save</button>
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
       <div id="picker">
 
          <!-- append the picker here -->
       </div>
-
+    <!-- </div> -->
 
         <div id='randomPalette' >
           <div>

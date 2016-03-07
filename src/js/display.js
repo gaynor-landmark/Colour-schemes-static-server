@@ -6,6 +6,9 @@ var rgb2hex = require('./rgb2hex.js')
 var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
 var savePalette = require('./savePalette.js')
+var handlebars = require('handlebars')
+
+var request = require('superagent')
 
 var appendPalettes = require('./appendPalettes.js')
 
@@ -19,6 +22,7 @@ module.exports = function(){
   })
   inspirePalette()
   clearPalette()
+ welcome("Guest")
 
 
 
@@ -45,12 +49,6 @@ function addFromColourLoversPalette(target) {
     if (!added) alert("The palette is full. Click on a colour to remove it before adding another.")
 }
 
- // function setSwatchesToWhite(){
- //   for (var i = 1; i< 6; i++) {
- //     myswatch = "#swatch" + i
- //     document.querySelector(myswatch).style.background = 'rgb(255,255,255)'
- //   }
- // }
 
 // add the picked colour to the palette
   function addToPalette(which){
@@ -141,9 +139,6 @@ function addFromColourLoversPalette(target) {
     $(myswatch).click(function(e){addFromColourLoversPalette(e.target)})
 
   }
-  // $('.createButton').click(function(){
-  //   window.location = './index.html'
-  // })
 
 
   $('#tryButton').click(function(e){
@@ -152,9 +147,25 @@ function addFromColourLoversPalette(target) {
   })
 
   $('#myPalettesButton').click(function(){
+    console.log("listen mypalettes")
     appendPalettes()
     // window.location = './myPalettes.html' + paletteQueryString()
   })
+
+}
+
+function welcome(name){
+  //get the current user
+
+//  getRequest('http://localhost:3000/user', welcomeTemplate)
+
+  function welcomeTemplate (err, res) {
+    var theTemplateScript = $("#myUser-Template").html()
+    //Compile the template​
+    var theTemplate = handlebars.compile(theTemplateScript)
+    console.log("data", res)
+    $("#welcome").append(theTemplate({user: name}))
+  }
 }
 
 const inspirePalette = () => {
