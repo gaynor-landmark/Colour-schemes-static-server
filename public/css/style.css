@@ -2,14 +2,16 @@ body{
   position: relative;
   height: auto;
   width: auto;
-  background: Gainsboro;
+  background: Gainsboro ;
   font-size: 200%
   font-family: monospace;
+
 }
 #topPanel{
   width: auto;
-  background: LightGray;
+  background: #F9F9F9 url("../images/colored-pencils.jpg") no-repeat right top;
   padding: 2.5% 5% 0%;
+  background:
  /*background-color: pink;*/
 }
 #pickerPanel{
@@ -17,7 +19,7 @@ body{
   height: auto;
   background: LightGray;
   padding: 2.5% 5% 0%;
- /*background-color: pink;*/
+ background-color: pink;
 }
 header{
   text-align: center;
