@@ -29,6 +29,7 @@ module.exports = function(){
 
  function addListeners(){
    $('#clearButton').click(function(e){clearPalette()})
+
    $('#saveButton').click(function(e){
      var paletteJson = {}
      paletteJson.Name = $('#palettename').val()
@@ -45,54 +46,50 @@ module.exports = function(){
      }
    })
 
+   for (var c = 1; c < 6; c++) {
+     var mycolour = "#colour" + c
+     $(mycolour).click(function (e){
+       updateElement(document.querySelector(mycolour).style.background)
+     })
+   }
+  //  $('#colour1').click(function (e){
+  //    updateElement(document.querySelector('#colour1').style.background)
+  //  })
+  //  $('#colour2').click(function (e){
+  //    updateElement(document.querySelector('#colour2').style.background)
+  //  })
+  //  $('#colour3').click(function (e){
+  //    updateElement(document.querySelector('#colour3').style.background)
+  //  })
+  //  $('#colour4').click(function (e){
+  //    updateElement(document.querySelector('#colour4').style.background)
+  //  })
+  //  $('#colour5').click(function (e){
+  //    updateElement(document.querySelector('#colour5').style.background)
+  //  })
+
+   // add listeners to custom palette
+   for (var a = 1; a < 6; a++) {
+     var myswatch = "#swatch" + a
+     $(myswatch).click(function(e){addToPalette(e.target.id)})
+   }
+   // add listeners to colourlovers palette
+   for (var b = 1; b < 6; b++) {
+     var myswatch = "#swatch" + (b * 10)
+     $(myswatch).click(function(e){addFromColourLoversPalette(e.target)})
+   }
+   $('#randomButton').click(function(e){inspirePalette()})
+
+   $('#tryButton').click(function(e){
+     var qString = createQueryString()
+     window.location = './tryItOut.html' + qString
+   })
+
+   $('#myPalettesButton').click(function(){
+     appendPalettes()
+   })
+
  }
-
-  $('#colour1').click(function (e){
-    updateElement(document.querySelector('#colour1').style.background)
-  })
-  $('#colour2').click(function (e){
-    updateElement(document.querySelector('#colour2').style.background)
-  })
-  $('#colour3').click(function (e){
-    updateElement(document.querySelector('#colour3').style.background)
-  })
-  $('#colour4').click(function (e){
-    updateElement(document.querySelector('#colour4').style.background)
-  })
-  $('#colour5').click(function (e){
-    updateElement(document.querySelector('#colour5').style.background)
-  })
-
-
-//listeners
-
-
-  $('#randomButton').click(function(e){inspirePalette()})
-
-  // add listeners to custom palette
-  for (var a = 1; a < 6; a++) {
-    var myswatch = "#swatch" + a
-    $(myswatch).click(function(e){addToPalette(e.target.id)})
-
-  }
-  // add listeners to colourlovers palette
-  for (var b = 1; b < 6; b++) {
-    var myswatch = "#swatch" + (b * 10)
-    $(myswatch).click(function(e){addFromColourLoversPalette(e.target)})
-
-  }
-
-
-  $('#tryButton').click(function(e){
-    var qString = createQueryString()
-    window.location = './tryItOut.html' + qString
-  })
-
-  $('#myPalettesButton').click(function(){
-    console.log("listen mypalettes")
-    appendPalettes()
-    // window.location = './myPalettes.html' + paletteQueryString()
-  })
 
 }
 
