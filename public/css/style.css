@@ -19,7 +19,7 @@ body{
   padding-top: 1%;
  /*background-color: pink;*/
 }
-#loginPanel{
+.loginPanel{
   width: auto;
   height: 900px;
   background: url("../images/colored-pencils.jpg") no-repeat center top;
@@ -27,7 +27,12 @@ body{
   padding:5%;
   padding-top:25%;
 }
+.logins{
+  width: auto;
+  font-size: 120%;
+  padding:.5%;
 
+}
 #picPanel{
   height: 2500px;
 }
