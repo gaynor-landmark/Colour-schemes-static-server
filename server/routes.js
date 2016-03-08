@@ -1,5 +1,5 @@
 var express = require('express')
-var path = require('path')
+// var path = require('path')
 var cors = require('cors')
 var passport = require('passport')
 var Strategy = require('passport-instagram')
@@ -47,7 +47,7 @@ module.exports = function routes(app){
     if (passport.session.id) {
       knex('palettes')
       .join('users', 'users.UserID', '=', 'palettes.UserID')
-       .select('users.DisplayName', 'palettes.PaletteName', 'palettes.Colour1', 'palettes.Colour2', 'palettes.Colour3', 'palettes.Colour4', 'palettes.Colour5')
+      //  .select('users.DisplayName', 'palettes.PaletteName', 'palettes.Colour1', 'palettes.Colour2', 'palettes.Colour3', 'palettes.Colour4', 'palettes.Colour5')
 
       .where('palettes.UserID', passport.session.id)
       .select('*')
