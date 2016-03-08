@@ -69,9 +69,10 @@ li{
   padding-top: 25px;
   /*background-color: pink;*/
 }
-h2{
+h2, h3{
   font-family: monospace;
 }
+
 #colourOptions{
   width: 100%;
   height: 100px
