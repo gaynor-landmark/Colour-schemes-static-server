@@ -7,7 +7,7 @@ module.exports = function() {
   getRequest('http://localhost:3000/palettes', appendToList)
 
   function appendToList(data){
-console.log(data)
+console.log("appendtolist", data)
 
     $('#palettelist').empty('')
     var theTemplateScript = $("#myPalettes-Template").html()

@@ -53,9 +53,11 @@ module.exports = function routes(app){
       .where('palettes.UserID', passport.session.id)
       .select('*')
       .then(function(resp) {
-        console.log (resp)
+        console.log ("inget", resp)
           res.send(resp)
       })
+    } else {
+      res.send({})
     }
 
   })
