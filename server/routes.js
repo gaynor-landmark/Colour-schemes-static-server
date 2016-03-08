@@ -44,6 +44,7 @@ module.exports = function routes(app){
   })
 
   app.get('/palettes', function(req, res) {
+    console.log("in GET", passport.session.id)
     if (passport.session.id) {
       knex('palettes')
       .join('users', 'users.UserID', '=', 'palettes.UserID')
@@ -52,6 +53,7 @@ module.exports = function routes(app){
       .where('palettes.UserID', passport.session.id)
       .select('*')
       .then(function(resp) {
+        console.log (resp)
           res.send(resp)
       })
     }
@@ -77,6 +79,7 @@ module.exports = function routes(app){
       // set the session cookie with the details of the user who just logged in
       passport.session.id = req.user.id
       passport.session.displayName = req.user.displayName
+      console.log(passport.session.id)
       // check if the user exists in the database
       knex('users').where('UserID', req.user.id).select('*')
       .then(function (resp1){
@@ -104,7 +107,7 @@ module.exports = function routes(app){
 
   var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-    app.use(bodyParser.json())
+  app.use(bodyParser.json())
 
 
 
