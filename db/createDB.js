@@ -15,10 +15,11 @@ var dropSqlPalettes = 'DROP TABLE IF EXISTS palettes;'
 var createSqlUsers = [
   'CREATE TABLE users (',
 	'UserID VARCHAR(255) PRIMARY KEY ASC,',
-	'LastName VARCHER(255),',
-	'FirstName VARCHER(255),',
+	'LastName VARCHAR(255),',
+	'FirstName VARCHAR(255),',
+  'DisplayName VARCHAR(255),',
 	'Email VARCHAR(255),',
-	'Password_Hash VARCHER(255)',
+	'Password_Hash VARCHAR(255)',
   ');'
 ].join(' ')
 

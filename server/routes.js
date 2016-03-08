@@ -21,15 +21,18 @@ var knex = require('knex')({
 
 module.exports = function routes(app){
 
-
   app.post('/palettes', function(req, res) {
   var newId = uuid.v4()
   console.log(user.id)
+  var userID = 0
+  if (passport.session.id){
+    var userID = passport.session.id
+  }
   var colours = req.body.Colours.split('|')
     knex('palettes').insert({
           PaletteID: newId ,
           PaletteName: req.body.Name,
-          UserID: user.id,
+          UserID: userID,
           Colour1: colours[0],
           Colour2: colours[1],
           Colour3: colours[2],
@@ -43,9 +46,14 @@ module.exports = function routes(app){
   app.get('/palettes', function(req, res) {
     console.log("user id",  passport.session.id)
     if (passport.session.id) {
-      knex('palettes').where('UserID', passport.session.id).select('*')
+      knex('palettes')
+      .join('users', 'users.UserID', '=', 'palettes.UserID')
+       .select('users.DisplayName', 'palettes.PaletteName', 'palettes.Colour1', 'palettes.Colour2', 'palettes.Colour3', 'palettes.Colour4', 'palettes.Colour5')
+      
+      .where('palettes.UserID', passport.session.id)
+      .select('*')
       .then(function(resp) {
-         console.log("here")
+         console.log(resp)
           res.send(resp)
       })
     }
@@ -86,7 +94,7 @@ module.exports = function routes(app){
         console.log(resp1)
         if (!resp1[0]){
           // save the display name in the lastname field
-          knex('users').insert({UserID: req.user.id, LastName:req.user.displayName})
+          knex('users').insert({UserID: req.user.id, DisplayName:req.user.displayName})
           .then(function(resp2){
             console.log('after save')
           })

@@ -32,7 +32,7 @@
           <button class='colours' id='colour5' onclick="updateElement(id)"></button>
 
         </div>
-        <button class='button' onclick='returnToCreate()'>Create</button>
+        <button id='returnBtn' class='button' onclick='returnToCreate()'>Custom Palettes</button>
       <div id="siteTemplate">
         <div id="fullPanel">
             <!-- This fullPanel has a margin of 5% -->
@@ -68,7 +68,9 @@
     <script>
       console.log (window.location.href)
       //set the colours of the buttons
-      var coloursArr = window.location.href.slice(window.location.href.indexOf('?') + 1).split('|');
+      var qstring = window.location.href.slice(window.location.href.indexOf('?') + 1)
+      var coloursArr = qstring.split('|')
+    //  var coloursArr = window.location.href.slice(window.location.href.indexOf('?') + 1).split('|');
 
     for(var i = 0; i < coloursArr.length; i++)
     {
@@ -79,7 +81,8 @@
     console.log("complete")
   }
     function returnToCreate(){
-      window.location = './index.html'
+      console.log("qstring", qstring)
+      window.location = './index.html?' + qstring
     }
    console.log("update element")
     function updateElement(id){
