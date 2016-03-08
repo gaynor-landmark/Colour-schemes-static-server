@@ -46429,14 +46429,13 @@ function createQueryString(){
   return qString
 }
 
-},{"./appendPalettes.js":283,"./clearPalette.js":284,"./hex2rgb.js":287,"./rgb2hex.js":288,"./savePalette.js":289,"colourlovers":7,"handlebars":44,"jquery":61,"simple-color-picker":117,"superagent":126}],286:[function(require,module,exports){
+},{"./appendPalettes.js":283,"./clearPalette.js":284,"./hex2rgb.js":287,"./rgb2hex.js":289,"./savePalette.js":290,"colourlovers":7,"handlebars":44,"jquery":61,"simple-color-picker":117,"superagent":126}],286:[function(require,module,exports){
 var request = require('superagent')
 
 module.exports = function getRequest(geturl, callback) {
 	console.log("in get request", geturl)
 	request.get(geturl)
 				.end(function(err, res){
-					console.log("getreq response", res.body)
 					callback(res.body)
 				})
 }
@@ -46454,6 +46453,19 @@ module.exports = function (hex) {
 }
 
 },{}],288:[function(require,module,exports){
+var request = require('superagent')
+
+module.exports = function (url, data, callback){
+  console.log('in POST', url, data, callback)
+  request.post(url)
+  .send(data)
+  .end(function(err, res){
+    callback(res)
+  })
+
+}
+
+},{"superagent":126}],289:[function(require,module,exports){
 //Utility Function
 
 // 'borrowed' and edited code
@@ -46465,20 +46477,18 @@ module.exports =  function (orig){
   ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig).toUpperCase()
 }
 
-},{}],289:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 var $ = require('jquery')
-var request = require('superagent')
+var postRequest = require('./postRequest')
 // save the palette by name
 module.exports = function savePalette(palette){
-
   console.log("in save", palette)
+  postRequest('http://localhost:3000/palettes', palette, saved)
 
-  request.post('http://localhost:3000/palettes')
-  .send(palette)
-  .end(function(err, res){
-    console.log("response")
-  })
-
+  function saved(resp){
+    console.log(resp)
+    alert("Saved!")
+  }
 }
 
-},{"jquery":61,"superagent":126}]},{},[282]);
+},{"./postRequest":288,"jquery":61}]},{},[282]);
