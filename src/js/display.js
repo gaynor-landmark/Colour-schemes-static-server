@@ -22,13 +22,15 @@ module.exports = function(){
   })
   inspirePalette()
   clearPalette()
-  // var qstringColours = window.location.href.slice(window.location.href.indexOf('?') + 1)
-  // loadCustomPalette(qstringColours)
 
- function loadCustomPalette (colourString) {
+
+ loadCustomPalette()
+
+ function loadCustomPalette () {
+
+  var colourString = window.location.href.slice(window.location.href.indexOf('?') + 1)
   console.log("cload", colourString)
-
-  if (colourString > 0){
+  if (colourString.length > 0){
     var arr = colourString.split('|')
     for (var c = 1; c < 6; c++){
       myswatch = "#swatch" + c
