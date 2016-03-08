@@ -1,16 +1,16 @@
 var $ = require('jquery')
 var colourlovers = require('colourlovers')
 var ColorPicker = require('simple-color-picker')
+var handlebars = require('handlebars')
 
+var request = require('superagent')
 var rgb2hex = require('./rgb2hex.js')
 var hex2rgb = require('./hex2rgb.js')
 var clearPalette = require('./clearPalette.js')
 var savePalette = require('./savePalette.js')
-var handlebars = require('handlebars')
-
-var request = require('superagent')
-
+var loadCustomPalette = require('./loadCustomPalette.js')
 var appendPalettes = require('./appendPalettes.js')
+var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
 
 module.exports = function(){
   //create the colour picker
@@ -24,45 +24,45 @@ module.exports = function(){
   clearPalette()
   loadCustomPalette()
 
- function loadCustomPalette () {
-   console.log("precload", window.location.href.indexOf('?'), colourString)
-   if (window.location.href.indexOf('?') >= 0) {
-      var colourString = window.location.href.slice(window.location.href.indexOf('?') + 1)
-      console.log("cload", colourString)
-      if (colourString.length > 0){
-        var arr = colourString.split('|')
-        for (var c = 1; c < 6; c++){
-          myswatch = "#swatch" + c
-          myhex = myswatch.replace("swatch", "hex")
-          document.querySelector(myswatch).style.background =  hex2rgb(arr[c - 1])
-          $(myhex).text('#' + arr[c - 1])
-        }
-      }
-    }
-}
+//  function loadCustomPalette () {
+//    console.log("precload", window.location.href.indexOf('?'), colourString)
+//    if (window.location.href.indexOf('?') >= 0) {
+//       var colourString = window.location.href.slice(window.location.href.indexOf('?') + 1)
+//       console.log("cload", colourString)
+//       if (colourString.length > 0){
+//         var arr = colourString.split('|')
+//         for (var c = 1; c < 6; c++){
+//           myswatch = "#swatch" + c
+//           myhex = myswatch.replace("swatch", "hex")
+//           document.querySelector(myswatch).style.background =  hex2rgb(arr[c - 1])
+//           $(myhex).text('#' + arr[c - 1])
+//         }
+//       }
+//     }
+// }
 
-function addFromColourLoversPalette(target) {
-  var which = target.id
-  var clColString = target.style.background
-  var added = false
-
-  // add the colour to the next available swatch
-  for (var i = 1; i< 6; i++) {
-    var myswatch = "#swatch" + i
-    var mycolour = "#colour" + i
-    var myhex = "#hex" + i
-    var hexcol = rgb2hex($(myswatch).css('background-color'))
-    if (hexcol.toUpperCase() === '#FFFFFF'){
-        document.querySelector(myswatch).style.background = clColString
-        clColString = rgb2hex(clColString).toUpperCase()
-        console.log("cl", clColString)
-        $(myhex).text(clColString)
-        added = true
-        break
-       }
-    }
-    if (!added) alert("The palette is full. Click on a colour to remove it before adding another.")
-}
+// function addFromColourLoversPalette(target) {
+//   var which = target.id
+//   var clColString = target.style.background
+//   var added = false
+//
+//   // add the colour to the next available swatch
+//   for (var i = 1; i< 6; i++) {
+//     var myswatch = "#swatch" + i
+//     var mycolour = "#colour" + i
+//     var myhex = "#hex" + i
+//     var hexcol = rgb2hex($(myswatch).css('background-color'))
+//     if (hexcol.toUpperCase() === '#FFFFFF'){
+//         document.querySelector(myswatch).style.background = clColString
+//         clColString = rgb2hex(clColString).toUpperCase()
+//         console.log("cl", clColString)
+//         $(myhex).text(clColString)
+//         added = true
+//         break
+//        }
+//     }
+//     if (!added) alert("The palette is full. Click on a colour to remove it before adding another.")
+// }
 
 
 // add the picked colour to the palette
