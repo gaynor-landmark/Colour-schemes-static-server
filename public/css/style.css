@@ -5,15 +5,29 @@ body{
   background: Gainsboro ;
   font-size: 200%
   font-family: monospace;
-
 }
-.topPanel{
+#topPanel{
   width: auto;
   background: #F9F9F9 url("../images/colored-pencils.jpg") no-repeat right top;
   padding: 2.5% 5% 0%;
-  background:
  /*background-color: pink;*/
 }
+#bottomPanel{
+  width: auto;
+  /*background: #F9F9F9 url("../images/colored-pencils.jpg") no-repeat right top;*/
+  padding: 3%;
+  padding-top: 1%;
+ /*background-color: pink;*/
+}
+#loginPanel{
+  width: auto;
+  height: 900px;
+  background: url("../images/colored-pencils.jpg") no-repeat center top;
+  font-size: 150%;
+  padding:5%;
+  padding-top:25%;
+}
+
 #picPanel{
   height: 2500px;
 }
@@ -77,7 +91,11 @@ h2{
   margin: 2%;
   /*background-color: blue;*/
 }
-
+.swatchLi{
+  padding: 3%;
+  padding-bottom:6%;
+  font-size: 120%;
+}
 #picker{
   display: block;
   width: 100%;

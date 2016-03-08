@@ -6,11 +6,8 @@ var knex = require('knex')({
   useNullAsDefault: true
 })
 
-// https://www.sqlite.org/lang_droptable.html
 var dropSqlUsers = 'DROP TABLE IF EXISTS users;'
 var dropSqlPalettes = 'DROP TABLE IF EXISTS palettes;'
-// https://www.sqlite.org/lang_createtable.html
-// See also: https://www.sqlite.org/datatype3.html
 
 var createSqlUsers = [
   'CREATE TABLE users (',
