@@ -44,16 +44,14 @@ module.exports = function routes(app){
   })
 
   app.get('/palettes', function(req, res) {
-    console.log("user id",  passport.session.id)
     if (passport.session.id) {
       knex('palettes')
       .join('users', 'users.UserID', '=', 'palettes.UserID')
        .select('users.DisplayName', 'palettes.PaletteName', 'palettes.Colour1', 'palettes.Colour2', 'palettes.Colour3', 'palettes.Colour4', 'palettes.Colour5')
-      
+
       .where('palettes.UserID', passport.session.id)
       .select('*')
       .then(function(resp) {
-         console.log(resp)
           res.send(resp)
       })
     }
@@ -67,15 +65,8 @@ module.exports = function routes(app){
 
    app.get('/user',
      function(req, res){
-     console.log("get user",  passport.session.id)
      res.send(passport.session.id);
   })
-
- //  app.post('/user',
- //    function(req, res){
- //    console.log("get user",  passport.session.id)
- //    res.send("saved");
- // })
 
   app.get('/auth/github',
     passport.authenticate('github'))
@@ -83,33 +74,29 @@ module.exports = function routes(app){
   app.get('/auth/github/return',
     passport.authenticate('github', { failureRedirect: '/login.html' }),
     function(req, res) {
-      console.log("in /login/github/callback after authenticate", req.user.id, req.user.displayName)
+      // set the session cookie with the details of the user who just logged in
       passport.session.id = req.user.id
       passport.session.displayName = req.user.displayName
-      // now save the user to the database
-      console.log("about to save", req.user)
-      // first check if  the  user already exists in the database
+      // check if the user exists in the database
       knex('users').where('UserID', req.user.id).select('*')
       .then(function (resp1){
-        console.log(resp1)
         if (!resp1[0]){
-          // save the display name in the lastname field
+          // save the display name in the DisplayName field
           knex('users').insert({UserID: req.user.id, DisplayName:req.user.displayName})
           .then(function(resp2){
-            console.log('after save')
+            res.redirect('/')
           })
         }
         res.redirect('/')
-      }
-      )
-    });
+      })
+    })
 
   app.get('/logout', function(req, res){
-    console.log("in logout")
     passport.session.id = ""
-    req.logout();
-    res.redirect('/');
-  });
+    passport.session.displayName = ""
+    req.logout()
+    res.redirect('/')
+  })
 
 
 
@@ -119,12 +106,7 @@ module.exports = function routes(app){
 
     app.use(bodyParser.json())
 
-    // app.post('/api/v1/artists', urlencodedParser, function (req, res) {
-    //   console.log('request', req.body)
-    //   db.add('artists', req.body, function (err, resp) {
-    //     res.json(resp)
-    //    })
-    // })
+
 
 
   app.post('/sign-in', urlencodedParser, function(req, res){
@@ -200,12 +182,12 @@ module.exports = function routes(app){
 
 
 
-
-
-  app.get('/sign-in', function(req, res){
-    console.log(req.body)
-  })
-
+  //
+  //
+  // app.get('/sign-in', function(req, res){
+  //   console.log(req.body)
+  // })
+  //
 
 
 
