@@ -11,6 +11,8 @@ var savePalette = require('./savePalette.js')
 var loadCustomPalette = require('./loadCustomPalette.js')
 var appendPalettes = require('./appendPalettes.js')
 var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
+var addToPalette = require('./addToPalette.js')
+var updateElement = require('./updateElement.js')
 
 module.exports = function(){
   //create the colour picker
@@ -66,42 +68,42 @@ module.exports = function(){
 
 
 // add the picked colour to the palette
-  function addToPalette(which){
-    console.log("add to pal")
-      var myswatch = "#" + which
-      var mycolour = myswatch.replace("swatch", "colour")
-      var myhex = mycolour.replace("colour", "hex")
-      var hexcol = rgb2hex($(myswatch).css('background-color'))
+  // function addToPalette(which){
+  //   console.log("add to pal")
+  //     var myswatch = "#" + which
+  //     var mycolour = myswatch.replace("swatch", "colour")
+  //     var myhex = mycolour.replace("colour", "hex")
+  //     var hexcol = rgb2hex($(myswatch).css('background-color'))
+  //
+  //     if (hexcol.toUpperCase() === '#FFFFFF'){
+  //       var pickColString = colorPicker.getHexString()
+  //       document.querySelector(myswatch).style.background = pickColString
+  //       $(myhex).text(pickColString.toUpperCase())
+  //
+  //      }
+  //      else {
+  //        //return to white
+  //        document.querySelector(myswatch).style.background = '#FFFFFF'
+  //        $(myhex).text('#FFFFFF')
+  //      }
+  // }
 
-      if (hexcol.toUpperCase() === '#FFFFFF'){
-        var pickColString = colorPicker.getHexString()
-        document.querySelector(myswatch).style.background = pickColString
-        $(myhex).text(pickColString.toUpperCase())
-
-       }
-       else {
-         //return to white
-         document.querySelector(myswatch).style.background = '#FFFFFF'
-         $(myhex).text('#FFFFFF')
-       }
-  }
 
 
-
- function updateElement(col){
-   console.log("update element")
-   if ($("#selectElement").val() === "BCK") {
-     $('#siteTemplate').css("background-color", col)
-   } else if ($("#selectElement").val() === "ART") {
-     $('#siteText').css("background-color", col)
-   } else if ($("#selectElement").val() === "FNT") {
-     $('body').css("color", col)
-   } else if ($("#selectElement").val() === "FOO") {
-     $('footer').css("background-color", col)
-   } else if ($("#selectElement").val() === "SEC") {
-     $('#secondaryText').css("background-color", col)
-   }
- }
+ // function updateElement(col){
+ //   console.log("update element")
+ //   if ($("#selectElement").val() === "BCK") {
+ //     $('#siteTemplate').css("background-color", col)
+ //   } else if ($("#selectElement").val() === "ART") {
+ //     $('#siteText').css("background-color", col)
+ //   } else if ($("#selectElement").val() === "FNT") {
+ //     $('body').css("color", col)
+ //   } else if ($("#selectElement").val() === "FOO") {
+ //     $('footer').css("background-color", col)
+ //   } else if ($("#selectElement").val() === "SEC") {
+ //     $('#secondaryText').css("background-color", col)
+ //   }
+ // }
 
 
 
