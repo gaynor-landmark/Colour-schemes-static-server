@@ -61,6 +61,20 @@ module.exports = function routes(app){
     }
 
   })
+  app.get('/palettes/:UserID', function(req, res) {
+    console.log("in GET for user", req.params.UserID)
+
+      knex('palettes')
+      // .join('users', 'users.UserID', '=', 'palettes.UserID')
+
+      .where('palettes.UserID', req.params.UserID)
+    //  .select('*')
+      .then(function(resp) {
+        console.log ("inget with userid", resp)
+          res.send(resp[0])
+      })
+
+  })
 
 
   app.get('/', function(req, res){
