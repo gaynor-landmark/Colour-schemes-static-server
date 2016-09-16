@@ -14,7 +14,7 @@ var callbackURL = 'http://localhost:3000/auth/github/return'
 
 
 if (process.env.NODE_ENV === 'production') {
-    callbackURL = 'https://colour-schemes-static-server.herokuapp.com/'
+    callbackURL = 'https://colour-schemes-static-server.herokuapp.com/auth/github/return'
 }
 
 dotenv.load()
