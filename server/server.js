@@ -10,11 +10,12 @@ var dotenv = require('dotenv')
 
 var routes = require('./routes.js')
 
-//https://colour-schemes-static-server.herokuapp.com/
-// NODE_ENV='production'
-// if (process.env.NODE_ENV === 'production') {
-//         this.socket = Primus.connect('ws://communo.herokuapp.com/')
-//       } else {
+var callbackURL = 'http://localhost:3000/auth/github/return'
+
+
+if (process.env.NODE_ENV === 'production') {
+    callbackURL = 'https://colour-schemes-static-server.herokuapp.com/'
+}
 
 dotenv.load()
 var app = express()
@@ -22,7 +23,7 @@ var app = express()
 passport.use(new Strategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: 'http://localhost:3000/auth/github/return'
+    callbackURL: callbackURL
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log("in strategy function")
@@ -45,23 +46,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 
-
-
-
 app.use(bodyParser.json());
 
 app.use(express.static('public'));
 
-
-
 routes(app)
 
-// if (require.main === module) {
-//   var port = process.env.PORT || 3000
-//   server.listen(port, function () {
-//     console.log('Server is running on port ' + port)
-//   })
-// }
 if (require.main === module) {
   var port = process.env.PORT || 3000
   app.set('port', port)
@@ -69,11 +59,3 @@ if (require.main === module) {
     console.log('listening on ' + port)
   })
 }
-
-//
-// app.set('port', 3000)
-//
-// var server = app.listen(app.get('port'), function(){
-//   var port = server.address().port
-//   console.log('listening on ' + port)
-// })
