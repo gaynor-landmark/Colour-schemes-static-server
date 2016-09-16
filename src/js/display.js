@@ -13,6 +13,7 @@ var appendPalettes = require('./appendPalettes.js')
 var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
 var addToPalette = require('./addToPalette.js')
 var updateElement = require('./updateElement.js')
+vaar inspirePalette = require('./inspirePalette.js')
 
 module.exports = function(){
   //create the colour picker

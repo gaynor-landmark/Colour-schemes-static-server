@@ -4,8 +4,8 @@
   "main": "server.js",
   "scripts": {
     "test": "node test/*.js tap-spec",
-    "server": "nodemon ./server/server.js",
-    "build": "watchify ./src/index.js -o ./public/bundle.js --watch",
+    "dev:server": "nodemon ./server/server.js",
+    "dev:build": "watchify ./src/index.js -o ./public/bundle.js --watch",
     "start": "budo ./src/index.js -d ./public/index.html --serve bundle.js --live -dv",
     "createDB": "node ./db/createDB.js"
   },
