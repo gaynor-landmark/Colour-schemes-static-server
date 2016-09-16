@@ -4,7 +4,9 @@ var handlebars = require('handlebars')
 
 module.exports = function() {
   console.log('in append')
-  getRequest('http://colour-schemes-static-server.herokuapp.com/palettes', appendToList)
+  var theUrl = 'http://colour-schemes-static-server.herokuapp.com/palettes'
+
+  getRequest(theUrl, appendToList)
 
   function appendToList(data){
 console.log("appendtolist", data)
