@@ -44374,6 +44374,7 @@ var hex2rgb = require('./hex2rgb.js')
 
 module.exports = function(){
   // retrieve a set of the 50 top palettes from colourlovers.com
+  console.log('inspire')
   $.getJSON('https://www.colourlovers.com/api/palettes/top?jsonCallback=?&numResults=50', function(data){
     var clPalette = data[Math.floor(Math.random()*50)]  // choose one randomly to display
     $("#clname").text(clPalette["title"] + ' by ' + clPalette["userName"])
