@@ -10,12 +10,12 @@ var dotenv = require('dotenv')
 
 var routes = require('./routes.js')
 
-var callbackURL = 'http://localhost:3000/auth/github/return'
+//var callbackURL = 'http://localhost:3000/auth/github/return'
 
 
-if (require.main === module) {
-    callbackURL = process.env.CALLBACK_URL
-}
+
+callbackURL = process.env.CALLBACK_URL
+
 
 dotenv.load()
 var app = express()
