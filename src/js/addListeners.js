@@ -36,11 +36,7 @@ module.exports = function (){
     })
   }
 
-  // add listeners to custom palette
-  for (var a = 1; a < 6; a++) {
-    var myswatch = "#swatch" + a
-    $(myswatch).click(function(e){addToPalette(e.target.id)})
-  }
+
   // add listeners to colourlovers palette
   for (var b = 1; b < 6; b++) {
     var myswatch = "#swatch" + (b * 10)
@@ -57,4 +53,17 @@ module.exports = function (){
     appendPalettes()
   })
 
+}
+function createQueryString(){
+  var qString = "?"
+  for (var i = 1; i< 6; i++) {
+    myswatch = "#swatch" + i
+    var hexcol = rgb2hex($(myswatch).css('background-color'))
+    if (i === 5){
+      qString += hexcol
+    } else {
+      qString += hexcol + "|"
+    }
+  }
+  return qString
 }

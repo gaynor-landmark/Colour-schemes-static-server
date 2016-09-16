@@ -27,9 +27,42 @@ module.exports = function(){
   inspirePalette()
   clearPalette()
   loadCustomPalette()
+
+
   addListeners()
 
+
+  // add listeners to custom palette
+  for (var a = 1; a < 6; a++) {
+    var myswatch = "#swatch" + a
+    $(myswatch).click(function(e){addToCustomPalette(e.target.id)})
+  }
+
+
+  function addToCustomPalette(which){
+    console.log("add to pal")
+      var myswatch = "#" + which
+      var mycolour = myswatch.replace("swatch", "colour")
+      var myhex = mycolour.replace("colour", "hex")
+      var hexcol = rgb2hex($(myswatch).css('background-color'))
+      console.log('hexcol', hexcol)
+
+      if (hexcol.toUpperCase() === '#FFFFFF'){
+        var pickColString = colorPicker.getHexString()
+        document.querySelector(myswatch).style.background = pickColString
+        $(myhex).text(pickColString.toUpperCase())
+
+       }
+       else {
+         //return to white
+         document.querySelector(myswatch).style.background = '#FFFFFF'
+         $(myhex).text('#FFFFFF')
+       }
+  }
+
 }
+
+
 
 function welcome(name){
   //get the current user

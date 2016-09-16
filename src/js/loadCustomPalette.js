@@ -1,4 +1,5 @@
 var $ = require('jquery')
+var hex2rgb = require('./hex2rgb')
 
 module.exports = function() {
   console.log("precload", window.location.href.indexOf('?'), colourString)

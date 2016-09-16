@@ -1,4 +1,5 @@
 var $ = require('jquery')
+var rgb2hex = require('./rgb2hex')
 
 module.exports = function (target) {
   var which = target.id
