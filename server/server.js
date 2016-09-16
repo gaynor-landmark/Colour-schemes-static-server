@@ -13,8 +13,8 @@ var routes = require('./routes.js')
 var callbackURL = 'http://localhost:3000/auth/github/return'
 
 
-if (process.env.NODE_ENV === 'production') {
-    callbackURL = 'https://colour-schemes-static-server.herokuapp.com/auth/github/return'
+if (require.main === module) {
+    callbackURL = process.env.CALLBACK_URL
 }
 
 dotenv.load()
