@@ -44223,7 +44223,9 @@ var handlebars = require('handlebars')
 
 module.exports = function() {
   console.log('in append')
-  getRequest('http://localhost:3000/palettes', appendToList)
+  var theUrl = 'http://colour-schemes-static-server.herokuapp.com/palettes'
+
+  getRequest(theUrl, appendToList)
 
   function appendToList(data){
 console.log("appendtolist", data)
@@ -44439,7 +44441,9 @@ var postRequest = require('./postRequest')
 // save the palette by name
 module.exports = function savePalette(palette){
   console.log("in save", palette)
-  postRequest('http://localhost:3000/palettes', palette, saved)
+  //postRequest('http://localhost:3000/palettes', palette, saved)
+  var theUrl = 'http://colour-schemes-static-server.herokuapp.com/palettes'
+  postRequest (theUrl, palette, saved)
 
   function saved(resp){
     console.log(resp)
