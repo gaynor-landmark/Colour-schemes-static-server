@@ -8,6 +8,7 @@ var loadCustomPalette = require('./loadCustomPalette.js')
 var appendPalettes = require('./appendPalettes.js')
 var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
 var addToPalette = require('./addToPalette.js')
+var inspirePalette = require('./inspirePalette')
 
 module.exports = function (){
   $('#clearButton').click(function(e){clearPalette()})

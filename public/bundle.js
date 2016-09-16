@@ -44151,6 +44151,7 @@ var loadCustomPalette = require('./loadCustomPalette.js')
 var appendPalettes = require('./appendPalettes.js')
 var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
 var addToPalette = require('./addToPalette.js')
+var inspirePalette = require('./inspirePalette')
 
 module.exports = function (){
   $('#clearButton').click(function(e){clearPalette()})
@@ -44201,7 +44202,7 @@ module.exports = function (){
 
 }
 
-},{"./addFromColourLoversPalette.js":171,"./addToPalette.js":173,"./appendPalettes.js":174,"./clearPalette.js":175,"./hex2rgb.js":178,"./loadCustomPalette.js":180,"./rgb2hex":182,"./savePalette":183,"./updateElement":184,"jquery":65}],173:[function(require,module,exports){
+},{"./addFromColourLoversPalette.js":171,"./addToPalette.js":173,"./appendPalettes.js":174,"./clearPalette.js":175,"./hex2rgb.js":178,"./inspirePalette":179,"./loadCustomPalette.js":180,"./rgb2hex":182,"./savePalette":183,"./updateElement":184,"jquery":65}],173:[function(require,module,exports){
 var $ = require('jquery')
 
 module.exports = function (which){
