@@ -14,7 +14,7 @@ var routes = require('./routes.js')
 
 
 
-callbackURL = process.env.CALLBACK_URL
+var callbackURL = process.env.CALLBACK_URL
 
 
 dotenv.load()
@@ -22,8 +22,7 @@ var app = express()
 
 passport.use(new Strategy({
     clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: callbackURL
+    clientSecret: 'https://colour-schemes-static-server.herokuapp.com/auth/github/returncallbackURL'
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log("in strategy function")
