@@ -14,6 +14,7 @@ var addFromColourLoversPalette = require('./addFromColourLoversPalette.js')
 var addToPalette = require('./addToPalette.js')
 var updateElement = require('./updateElement.js')
 var inspirePalette = require('./inspirePalette.js')
+var addListeners = require('./addListeners.js')
 
 module.exports = function(){
   //create the colour picker

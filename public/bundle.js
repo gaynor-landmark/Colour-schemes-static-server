@@ -1,1 +1,1 @@
-console.error("Error: Parsing file /home/gay/workspace_sept/Colour-schemes-static-server/src/js/display.js: Unexpected token (16:5)");
+console.error("Error: Cannot find module 'rgb2hex' from '/home/gay/workspace_sept/Colour-schemes-static-server/src/js'");
