@@ -44116,6 +44116,7 @@ exports.eval = function(str) {
 
 },{"./js/display.js":176,"jquery":65}],171:[function(require,module,exports){
 var $ = require('jquery')
+var rgb2hex = require('./rgb2hex')
 
 module.exports = function (target) {
   var which = target.id
@@ -44140,7 +44141,7 @@ module.exports = function (target) {
     if (!added) alert("The palette is full. Click on a colour to remove it before adding another.")
 }
 
-},{"jquery":65}],172:[function(require,module,exports){
+},{"./rgb2hex":182,"jquery":65}],172:[function(require,module,exports){
 var $ = require('jquery')
 var rgb2hex = require('./rgb2hex')
 var savePalette = require('./savePalette')
@@ -44179,11 +44180,7 @@ module.exports = function (){
     })
   }
 
-  // add listeners to custom palette
-  for (var a = 1; a < 6; a++) {
-    var myswatch = "#swatch" + a
-    $(myswatch).click(function(e){addToPalette(e.target.id)})
-  }
+
   // add listeners to colourlovers palette
   for (var b = 1; b < 6; b++) {
     var myswatch = "#swatch" + (b * 10)
@@ -44201,31 +44198,25 @@ module.exports = function (){
   })
 
 }
+function createQueryString(){
+  var qString = "?"
+  for (var i = 1; i< 6; i++) {
+    myswatch = "#swatch" + i
+    var hexcol = rgb2hex($(myswatch).css('background-color'))
+    if (i === 5){
+      qString += hexcol
+    } else {
+      qString += hexcol + "|"
+    }
+  }
+  return qString
+}
 
 },{"./addFromColourLoversPalette.js":171,"./addToPalette.js":173,"./appendPalettes.js":174,"./clearPalette.js":175,"./hex2rgb.js":178,"./inspirePalette":179,"./loadCustomPalette.js":180,"./rgb2hex":182,"./savePalette":183,"./updateElement":184,"jquery":65}],173:[function(require,module,exports){
 var $ = require('jquery')
+var rgb2hex = require('./rgb2hex')
 
-module.exports = function (which){
-  console.log("add to pal")
-    var myswatch = "#" + which
-    var mycolour = myswatch.replace("swatch", "colour")
-    var myhex = mycolour.replace("colour", "hex")
-    var hexcol = rgb2hex($(myswatch).css('background-color'))
-
-    if (hexcol.toUpperCase() === '#FFFFFF'){
-      var pickColString = colorPicker.getHexString()
-      document.querySelector(myswatch).style.background = pickColString
-      $(myhex).text(pickColString.toUpperCase())
-
-     }
-     else {
-       //return to white
-       document.querySelector(myswatch).style.background = '#FFFFFF'
-       $(myhex).text('#FFFFFF')
-     }
-}
-
-},{"jquery":65}],174:[function(require,module,exports){
+},{"./rgb2hex":182,"jquery":65}],174:[function(require,module,exports){
 var $ = require('jquery')
 var getRequest = require('./getRequest.js')
 var handlebars = require('handlebars')
@@ -44290,9 +44281,42 @@ module.exports = function(){
   inspirePalette()
   clearPalette()
   loadCustomPalette()
+
+
   addListeners()
 
+
+  // add listeners to custom palette
+  for (var a = 1; a < 6; a++) {
+    var myswatch = "#swatch" + a
+    $(myswatch).click(function(e){addToCustomPalette(e.target.id)})
+  }
+
+
+  function addToCustomPalette(which){
+    console.log("add to pal")
+      var myswatch = "#" + which
+      var mycolour = myswatch.replace("swatch", "colour")
+      var myhex = mycolour.replace("colour", "hex")
+      var hexcol = rgb2hex($(myswatch).css('background-color'))
+      console.log('hexcol', hexcol)
+
+      if (hexcol.toUpperCase() === '#FFFFFF'){
+        var pickColString = colorPicker.getHexString()
+        document.querySelector(myswatch).style.background = pickColString
+        $(myhex).text(pickColString.toUpperCase())
+
+       }
+       else {
+         //return to white
+         document.querySelector(myswatch).style.background = '#FFFFFF'
+         $(myhex).text('#FFFFFF')
+       }
+  }
+
 }
+
+
 
 function welcome(name){
   //get the current user
@@ -44364,6 +44388,7 @@ module.exports = function(){
 
 },{"./hex2rgb.js":178,"jquery":65}],180:[function(require,module,exports){
 var $ = require('jquery')
+var hex2rgb = require('./hex2rgb')
 
 module.exports = function() {
   console.log("precload", window.location.href.indexOf('?'), colourString)
@@ -44382,7 +44407,7 @@ module.exports = function() {
   }
 }
 
-},{"jquery":65}],181:[function(require,module,exports){
+},{"./hex2rgb":178,"jquery":65}],181:[function(require,module,exports){
 var request = require('superagent')
 
 module.exports = function (url, data, callback){
