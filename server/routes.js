@@ -87,6 +87,7 @@ module.exports = function routes(app){
   })
 
   app.get('/auth/github',
+  console.log(passport.Strategy)
     passport.authenticate('github'))
 
   app.get('/auth/github/return',

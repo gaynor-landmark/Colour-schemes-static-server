@@ -22,7 +22,8 @@ var app = express()
 
 passport.use(new Strategy({
     clientID: process.env.CLIENT_ID,
-    clientSecret: 'https://colour-schemes-static-server.herokuapp.com/auth/github/returncallbackURL'
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: 'http://colour-schemes-static-server.herokuapp.com/auth/github/return'
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log("in strategy function")
