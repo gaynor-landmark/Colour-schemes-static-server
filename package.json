@@ -4,9 +4,9 @@
   "main": "server.js",
   "scripts": {
     "test": "node test/*.js tap-spec",
+    "start": "node ./server/server.js",
     "dev:server": "nodemon ./server/server.js",
     "dev:build": "watchify ./src/index.js -o ./public/bundle.js --watch",
-    "start": "budo ./src/index.js -d ./public/index.html --serve bundle.js --live -dv",
     "createDB": "node ./db/createDB.js"
   },
   "repository": {
@@ -34,6 +34,7 @@
     "handlebars": "^4.0.5",
     "jquery": "^2.2.0",
     "knex": "^0.10.0",
+    "npm-run-all": "^3.1.0",
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
     "passport-instagram": "^1.0.0",
