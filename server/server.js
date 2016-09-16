@@ -8,8 +8,13 @@ var $ = require('jquery')
 var bodyParser = require('body-parser')
 var dotenv = require('dotenv')
 
-
 var routes = require('./routes.js')
+
+//https://colour-schemes-static-server.herokuapp.com/
+// NODE_ENV='production'
+// if (process.env.NODE_ENV === 'production') {
+//         this.socket = Primus.connect('ws://communo.herokuapp.com/')
+//       } else {
 
 dotenv.load()
 var app = express()
@@ -51,10 +56,24 @@ app.use(express.static('public'));
 
 routes(app)
 
+// if (require.main === module) {
+//   var port = process.env.PORT || 3000
+//   server.listen(port, function () {
+//     console.log('Server is running on port ' + port)
+//   })
+// }
+if (require.main === module) {
+  var port = process.env.PORT || 3000
+  app.set('port', port)
+  var server = app.listen(app.get('port'), function(){
+    console.log('listening on ' + port)
+  })
+}
 
-app.set('port', 3000)
-
-var server = app.listen(app.get('port'), function(){
-  var port = server.address().port
-  console.log('listening on ' + port)
-})
+//
+// app.set('port', 3000)
+//
+// var server = app.listen(app.get('port'), function(){
+//   var port = server.address().port
+//   console.log('listening on ' + port)
+// })
